@@ -2,6 +2,7 @@ import { ChevronDown, Play, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ensureFonts, loadSceneMedia, renderThumb } from "../engine/render";
 import { onMediaFrame } from "../lib/media";
+import { AiPicker } from "./AiPicker";
 import { FORMAT_INFO } from "../lib/presets";
 import { useStore, type View } from "../store";
 import type { Project } from "../types";
@@ -33,6 +34,7 @@ export function TopBar({ active, children }: { active?: View["name"]; children?:
         </nav>
       )}
       <span className="grow" />
+      <AiPicker />
       {children}
     </header>
   );

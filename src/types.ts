@@ -112,6 +112,16 @@ export interface Project {
   demo?: boolean;
 }
 
+/** Con qué se escriben los guiones */
+export type AiProvider = "api" | "claude-code" | "codex";
+export interface AiSettings {
+  provider: AiProvider;
+  /** vacío = el modelo por defecto de esa herramienta */
+  model: string;
+  /** vacío = el esfuerzo por defecto */
+  effort: string;
+}
+
 /** Lo que pide el usuario al crear */
 export interface StoryRequest {
   idea: string;

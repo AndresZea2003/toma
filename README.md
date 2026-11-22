@@ -25,6 +25,13 @@ deja `release/Toma Setup <versión>.exe`. La app guarda sus datos (perfil de Chr
 
 **Actualizaciones:** la app instalada busca una versión nueva al abrir, la descarga y la instala al cerrar. Para activarlo hay que publicar las versiones en un repositorio de GitHub: añadir `"publish": { "provider": "github", "owner": "...", "repo": "..." }` en `build` de `package.json`, subir el número de `version` y ejecutar `npx electron-builder --win --publish always` con un `GH_TOKEN`.
 
+### Quién escribe los guiones
+
+El chip de IA de la barra superior elige proveedor, modelo y esfuerzo:
+
+- **Claude Code** o **Codex**: usan la herramienta instalada en tu equipo con tu sesión, sin clave de API.
+- **API de Claude**: con `ANTHROPIC_API_KEY` en `.env`; sin clave, modo demo.
+
 ### Con IA (opcional)
 
 Copia `.env.example` como `.env` y pon tu `ANTHROPIC_API_KEY`. Sin clave, Toma funciona en **modo demo** con un generador local (guion de plantilla, mismos fondos, música y exportación).

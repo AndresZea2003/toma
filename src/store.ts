@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { Project, Scene, StoryDraft, StoryRequest } from "./types";
+import type { AiSettings, Project, Scene, StoryDraft, StoryRequest } from "./types";
 import { uid } from "./lib/util";
 
 export type View =
@@ -19,6 +19,8 @@ interface State {
   projects: Project[];
   view: View;
   toasts: Toast[];
+  ai: AiSettings;
+  setAi: (patch: Partial<AiSettings>) => void;
   go: (v: View) => void;
   toast: (text: string, tone?: Toast["tone"]) => void;
   dismiss: (id: string) => void;
@@ -72,6 +74,8 @@ export const useStore = create<State>()(
         projects: [],
         view: { name: "home" },
         toasts: [],
+        ai: { provider: "api", model: "", effort: "" },
+        setAi: (patch) => set((s) => ({ ai: { ...s.ai, ...patch } })),
         go: (view) => set({ view }),
         toast: (text, tone = "info") => {
           const id = uid();
@@ -176,7 +180,7 @@ export const useStore = create<State>()(
         }
         return s as State;
       },
-      partialize: (s) => ({ projects: s.projects }) as State,
+      partialize: (s) => ({ projects: s.projects, ai: s.ai }) as State,
     },
   ),
 );

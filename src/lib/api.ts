@@ -1,4 +1,5 @@
 import type { Scene, SceneEditRequest, StoryDraft, StoryRequest } from "../types";
+import { useStore } from "../store";
 import { demoStory } from "./demo";
 import { normalizeDraft, normalizeScene } from "./util";
 
@@ -14,7 +15,8 @@ async function post<T>(url: string, body: unknown): Promise<T> {
     res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      // Cada petición lleva con qué IA escribir (proveedor, modelo y esfuerzo elegidos)
+      body: JSON.stringify({ ...(body as object), ai: useStore.getState().ai }),
     });
   } catch {
     throw new ApiError("offline", "No se pudo contactar con el servidor local.");

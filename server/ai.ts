@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { cliJson, cliVersion } from "./cli";
 import {
   ACTOR_SIZES,
   BACKGROUNDS,
@@ -8,6 +9,7 @@ import {
   TEXT_STYLES,
   THEMES,
   TRANSITIONS,
+  type AiSettings,
   type SceneEditRequest,
   type StoryDraft,
   type StoryRequest,
@@ -131,11 +133,26 @@ Crea el guion gráfico completo.`;
 
 // ---------- Llamada común ----------
 
-async function callJson<T>(prompt: string, schema: Record<string, unknown>, effort: "low" | "medium") {
+const EFFORTS = ["low", "medium", "high", "xhigh", "max"] as const;
+type Effort = (typeof EFFORTS)[number];
+
+async function callJson<T>(prompt: string, schema: Record<string, unknown>, defaultEffort: Effort, ai?: Partial<AiSettings>): Promise<T> {
+  // Claude Code o Codex: la herramienta instalada, con la sesión del creador
+  if (ai?.provider === "claude-code" || ai?.provider === "codex") {
+    const name = ai.provider === "codex" ? "Codex" : "Claude Code";
+    if (!(await cliVersion(ai.provider))) throw new AiError("api", `No encontré ${name} instalado en este equipo.`);
+    try {
+      return (await cliJson(ai.provider, SYSTEM, prompt, schema, ai.model, ai.effort)) as T;
+    } catch (e) {
+      throw new AiError("api", `${name}: ${e instanceof Error ? e.message : "no pudo escribir el guion"}`);
+    }
+  }
+  const effort: Effort = EFFORTS.includes(ai?.effort as Effort) ? (ai!.effort as Effort) : defaultEffort;
+  const model = ai?.model && /^claude-[\w.-]{3,60}$/.test(ai.model) ? ai.model : MODEL();
   let response: Anthropic.Beta.BetaMessage;
   try {
     response = await getClient().beta.messages.create({
-      model: MODEL(),
+      model,
       max_tokens: 16000,
       betas: ["server-side-fallback-2026-07-01"],
       // Si un clasificador de seguridad rechaza la petición, la API la reintenta
@@ -176,11 +193,11 @@ async function callJson<T>(prompt: string, schema: Record<string, unknown>, effo
   }
 }
 
-export async function generateStory(r: StoryRequest): Promise<StoryDraft> {
-  return callJson<StoryDraft>(storyPrompt(r), storySchema, "medium");
+export async function generateStory(r: StoryRequest & { ai?: Partial<AiSettings> }): Promise<StoryDraft> {
+  return callJson<StoryDraft>(storyPrompt(r), storySchema, "medium", r.ai);
 }
 
-export async function editScene(r: SceneEditRequest): Promise<StoryDraft["scenes"][number]> {
+export async function editScene(r: SceneEditRequest & { ai?: Partial<AiSettings> }): Promise<StoryDraft["scenes"][number]> {
   const prompt = `Proyecto: "${r.projectTitle}" — idea original: ${r.idea}
 Idioma: ${r.language}
 Guía de estilo: ${r.styleGuide}
@@ -191,5 +208,5 @@ ${JSON.stringify(r.scene, null, 2)}
 Cambio pedido por el usuario: ${r.instruction}
 
 Devuelve la escena completa con el cambio aplicado. Mantén lo que no se pidió cambiar.`;
-  return callJson(prompt, sceneSchema, "low");
+  return callJson(prompt, sceneSchema, "low", r.ai);
 }

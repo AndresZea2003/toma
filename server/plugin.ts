@@ -76,6 +76,11 @@ export const handler: Connect.NextHandleFunction = async (req, res, next) => {
       return send(res, 500, { error: error instanceof Error ? error.message.split("\n")[0] : "Error del piloto" });
     }
   }
+  if (req.method === "GET" && req.url?.startsWith("/api/ai/providers")) {
+    const { cliVersion } = await import("./cli");
+    const [claude, codex] = await Promise.all([cliVersion("claude-code"), cliVersion("codex")]);
+    return send(res, 200, { api: Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN), "claude-code": claude, codex });
+  }
   if (req.method !== "POST" || !req.url?.startsWith("/api/")) return next();
   try {
     const body = await readJson(req);
