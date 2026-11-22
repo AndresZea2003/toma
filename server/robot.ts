@@ -65,9 +65,22 @@ const human = (min = 400, max = 1100) => sleep(min + Math.random() * (max - min)
 
 let browser: Browser | null = null;
 
+/**
+ * En la app de escritorio, las webs del piloto viven dentro de la ventana de Toma.
+ * La app registra este anfitrión; sin él (modo navegador) se usa una ventana de Chrome aparte.
+ */
+interface PilotHost {
+  ensure(tool: RobotTool): void;
+  show(tool: RobotTool | null): void;
+  visible(): RobotTool | null;
+}
+const pilotHost = () => (globalThis as { __tomaPilot?: PilotHost }).__tomaPilot;
+const embeddedPages = new Map<RobotTool, Page>();
+
 async function connect(): Promise<Browser | null> {
   try {
-    const b = await chromium.connectOverCDP(`http://127.0.0.1:${PORT}`, { timeout: 2500 });
+    const port = pilotHost() ? Number(process.env.TOMA_EMBED_PORT) : PORT;
+    const b = await chromium.connectOverCDP(`http://127.0.0.1:${port}`, { timeout: 2500 });
     b.on("disconnected", () => (browser = null));
     return b;
   } catch {
@@ -77,12 +90,25 @@ async function connect(): Promise<Browser | null> {
 
 async function ensureBrowser(): Promise<BrowserContext> {
   if (!browser?.isConnected()) browser = await connect();
+  if (!browser && pilotHost()) throw new Error("No pude conectar con el panel del piloto. Reinicia Toma.");
   if (!browser) {
     const exe = CHROME_PATHS.find((p) => existsSync(p));
     if (!exe) throw new Error("No encontré Chrome ni Edge instalados. Define CHROME_PATH en .env.");
     mkdirSync(PROFILE, { recursive: true });
     // Chrome normal con un perfil propio de Toma y el puerto de depuración local
-    const child = spawn(exe, [`--remote-debugging-port=${PORT}`, `--user-data-dir=${PROFILE}`, "--no-first-run", "--no-default-browser-check", "about:blank"], {
+    const child = spawn(exe, [
+      `--remote-debugging-port=${PORT}`,
+      `--user-data-dir=${PROFILE}`,
+      "--no-first-run",
+      "--no-default-browser-check",
+      // Arranca minimizado y sigue trabajando aunque no esté a la vista: Toma muestra el progreso
+      "--start-minimized",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-renderer-backgrounding",
+      "--disable-background-timer-throttling",
+      "--disable-features=CalculateNativeWinOcclusion",
+      "about:blank",
+    ], {
       detached: true,
       stdio: "ignore",
     });
@@ -96,7 +122,69 @@ async function ensureBrowser(): Promise<BrowserContext> {
   return browser.contexts()[0] ?? (await browser.newContext());
 }
 
+/** Página incrustada en la ventana de Toma para una herramienta */
+async function embeddedPage(tool: RobotTool, fresh: boolean): Promise<Page> {
+  const ctx = await ensureBrowser();
+  let page = embeddedPages.get(tool);
+  if (!page || page.isClosed()) {
+    pilotHost()!.ensure(tool); // la app crea la vista en about:blank#toma-<herramienta>
+    page = undefined;
+    for (let i = 0; i < 40 && !page; i++) {
+      page = browser!.contexts().flatMap((c) => c.pages()).find((p) => p.url().endsWith(`#toma-${tool}`) || HOSTS[tool].test(p.url()));
+      if (!page) await sleep(250);
+    }
+    if (!page) throw new Error("No pude abrir el panel del piloto.");
+    embeddedPages.set(tool, page);
+    void ctx;
+  }
+  const onTool = HOSTS[tool].test(page.url());
+  if (!onTool || (fresh && (tool === "chatgpt" || tool === "aistudio" || tool === "flowmusic"))) {
+    // No interrumpir un inicio de sesión a medias
+    if (onTool || !/accounts\.google|auth\.openai|login/.test(page.url())) await page.goto(URLS[tool], { waitUntil: "domcontentloaded" });
+  }
+  return page;
+}
+
+/** Enseña la página al creador (para iniciar sesión o echar una mano) */
+async function reveal(page: Page, tool: RobotTool) {
+  const host = pilotHost();
+  if (host) return host.show(tool);
+  await windowState(page, "normal");
+  await page.bringToFront();
+}
+
+/** Muestra o minimiza la ventana de Chrome del piloto */
+async function windowState(page: Page, state: "normal" | "minimized") {
+  try {
+    const cdp = await page.context().newCDPSession(page);
+    const { windowId } = (await cdp.send("Browser.getWindowForTarget")) as { windowId: number };
+    await cdp.send("Browser.setWindowBounds", { windowId, bounds: { windowState: state } });
+    await cdp.detach();
+  } catch {
+    /* la ventana sigue como esté */
+  }
+}
+
+/** Captura de lo que el piloto está viendo, para mostrarla dentro de Toma */
+export async function preview(tool: RobotTool): Promise<Buffer | null> {
+  if (!browser?.isConnected()) browser = await connect();
+  const page = browser?.contexts().flatMap((c) => c.pages()).find((p) => HOSTS[tool].test(p.url()) || /accounts\.google|auth\.openai/.test(p.url()));
+  if (!page) return null;
+  return page.screenshot({ type: "jpeg", quality: 55 }).catch(() => null);
+}
+
+/** Al terminar de iniciar sesión, la ventana vuelve a quedar fuera de la vista */
+export async function hideWindow() {
+  const page = browser?.contexts()[0]?.pages()[0];
+  if (page) await windowState(page, "minimized");
+}
+
+export function showPanel(tool: RobotTool | null) {
+  pilotHost()?.show(tool);
+}
+
 async function toolPage(tool: RobotTool, fresh = false): Promise<Page> {
+  if (pilotHost()) return embeddedPage(tool, fresh);
   const ctx = await ensureBrowser();
   let page = ctx.pages().find((p) => HOSTS[tool].test(p.url()));
   if (!page) {
@@ -110,13 +198,15 @@ async function toolPage(tool: RobotTool, fresh = false): Promise<Page> {
 }
 
 export async function openTool(tool: RobotTool) {
-  await (await toolPage(tool)).bringToFront();
+  await reveal(await toolPage(tool), tool);
 }
 
 export async function browserState() {
   if (!browser?.isConnected()) browser = await connect();
   const pages = browser ? browser.contexts().flatMap((c) => c.pages()) : [];
   return {
+    embedded: !!pilotHost(),
+    panel: pilotHost()?.visible() ?? null,
     open: !!browser,
     flow: pages.some((p) => HOSTS.flow.test(p.url())),
     chatgpt: pages.some((p) => HOSTS.chatgpt.test(p.url())),
@@ -398,11 +488,12 @@ async function runJobLocked(job: RobotJob, release: () => void) {
   // 1. Sesión iniciada (la inicia el creador, nunca Toma)
   if (await isLoggedOut(page)) {
     set(job, "login", "Inicia sesión en la ventana de Chrome que abrió Toma. Te espero.");
-    await page.bringToFront();
+    await reveal(page, job.tool);
     const until = Date.now() + 10 * 60_000;
     while (alive(job) && Date.now() < until && (await isLoggedOut(page))) await sleep(2000);
     if (!alive(job)) return;
     if (await isLoggedOut(page)) throw new Error("No se inició sesión a tiempo.");
+    if (!pilotHost()) await windowState(page, "minimized");
   }
 
   // 2. Campo del prompt (en Flow puede hacer falta abrir un proyecto)

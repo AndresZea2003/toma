@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ensureFonts, loadSceneMedia, renderThumb } from "../engine/render";
 import { onMediaFrame } from "../lib/media";
 import { AiPicker } from "./AiPicker";
+import { PilotChip } from "./PilotChip";
 import { FORMAT_INFO } from "../lib/presets";
 import { useStore, type View } from "../store";
 import type { Project } from "../types";
@@ -34,6 +35,7 @@ export function TopBar({ active, children }: { active?: View["name"]; children?:
         </nav>
       )}
       <span className="grow" />
+      <PilotChip />
       <AiPicker />
       {children}
     </header>

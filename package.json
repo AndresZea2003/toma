@@ -1,7 +1,7 @@
 {
   "name": "toma",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "De una idea a un video animado: guion con IA, escenas animadas y material de Flow/ChatGPT",
   "scripts": {

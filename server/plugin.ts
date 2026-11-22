@@ -44,6 +44,25 @@ async function robotRoute(req: IncomingMessage, res: ServerResponse, url: string
     await robot.openTool(tool);
     return send(res, 200, { ok: true });
   }
+  if (req.method === "GET" && section === "preview" && TOOLS.includes(id as never)) {
+    const shot = await robot.preview(id as (typeof TOOLS)[number]);
+    if (!shot) return send(res, 404, { error: "Sin ventana" });
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "image/jpeg");
+    res.setHeader("Cache-Control", "no-store");
+    res.end(shot);
+    return;
+  }
+  if (req.method === "POST" && section === "hide") {
+    await robot.hideWindow();
+    return send(res, 200, { ok: true });
+  }
+  if (req.method === "POST" && section === "panel") {
+    const body = await readJson(req);
+    if (body.tool === null) robot.showPanel(null);
+    else if (TOOLS.includes(body.tool)) await robot.openTool(body.tool);
+    return send(res, 200, { ok: true });
+  }
   if (section === "jobs" && !id && req.method === "POST") {
     const body = await readJson(req);
     if (!TOOLS.includes(body.tool) || !KINDS.includes(body.kind) || typeof body.prompt !== "string" || !body.prompt.trim()) {

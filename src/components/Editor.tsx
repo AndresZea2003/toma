@@ -6,6 +6,7 @@ import { MUSIC_LABELS, THEME_DEFS } from "../lib/presets";
 import { useProject, useStore } from "../store";
 import { MUSIC, THEMES } from "../types";
 import { AiPicker } from "./AiPicker";
+import { PilotChip } from "./PilotChip";
 import { SoundtrackControl } from "./Audio";
 import { ExportDialog } from "./ExportDialog";
 import { Inspector, type InspectorTab } from "./Inspector";
@@ -114,6 +115,7 @@ export function Editor({ id, initialScene = 0, initialTab = "texto" }: { id: str
         <input className="ed-title" value={project.title} onChange={(e) => updateProject(id, { title: e.target.value })} aria-label="Título del video" />
         {project.demo && <span className="badge">Modo demo</span>}
         <span className="grow" />
+        <PilotChip />
         <AiPicker />
         <VideoSettings id={id} />
         <button

@@ -1,5 +1,5 @@
 // Toma como app de escritorio: una ventana con la interfaz y el servidor dentro.
-import { app, BrowserWindow, dialog, shell } from "electron";
+import { app, BaseWindow, dialog, Menu, shell, WebContentsView } from "electron";
 import { autoUpdater } from "electron-updater";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -52,32 +52,45 @@ function checkForUpdates() {
   autoUpdater.checkForUpdates().catch(() => undefined);
 }
 
-let win: BrowserWindow | null = null;
+let win: BaseWindow | null = null;
+let ui: WebContentsView | null = null;
+
+function layout() {
+  if (!win || !ui) return;
+  const { width, height } = win.getContentBounds();
+  ui.setBounds({ x: 0, y: 0, width, height });
+}
 
 function createWindow() {
-  win = new BrowserWindow({
-    width: 1440,
-    height: 920,
+  win = new BaseWindow({
+    width: 1500,
+    height: 940,
     minWidth: 980,
     minHeight: 640,
     backgroundColor: "#eceef6",
-    autoHideMenuBar: true,
     title: "Toma",
-    webPreferences: { contextIsolation: true, nodeIntegration: false },
   });
-  // Los enlaces externos (Flow, ChatGPT…) se abren en el navegador del usuario
-  win.webContents.setWindowOpenHandler(({ url }) => {
+  if (process.platform !== "darwin") Menu.setApplicationMenu(null);
+  ui = new WebContentsView({ webPreferences: { contextIsolation: true, nodeIntegration: false } });
+  win.contentView.addChildView(ui);
+  // Los enlaces externos se abren en el navegador del usuario
+  ui.webContents.setWindowOpenHandler(({ url }) => {
     void shell.openExternal(url);
     return { action: "deny" };
   });
-  win.webContents.on("will-navigate", (e, url) => {
+  ui.webContents.on("will-navigate", (e, url) => {
     if (!url.startsWith(URL_APP)) {
       e.preventDefault();
       void shell.openExternal(url);
     }
   });
-  void win.loadURL(URL_APP);
-  win.on("closed", () => (win = null));
+  void ui.webContents.loadURL(URL_APP);
+  layout();
+  win.on("resize", layout);
+  win.on("closed", () => {
+    win = null;
+    ui = null;
+  });
 }
 
 if (!app.requestSingleInstanceLock()) {
