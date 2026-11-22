@@ -114,6 +114,23 @@ export async function exportVideo(project: Project, opts: ExportOptions = {}): P
   return { blob, url: URL.createObjectURL(blob), filename: `${slugify(project.title)}.${ext}`, mime: type };
 }
 
+/**
+ * Guarda el video en la carpeta de Toma (Videos/Toma). Si no se puede, cae a la descarga del navegador.
+ * Devuelve dónde quedó, o null si fue una descarga normal.
+ */
+export async function saveVideo(r: ExportResult): Promise<{ name: string; dir: string } | null> {
+  try {
+    const res = await fetch(`/api/save?name=${encodeURIComponent(r.filename)}`, { method: "POST", headers: { "Content-Type": "application/octet-stream" }, body: r.blob });
+    if (res.ok) return (await res.json()) as { name: string; dir: string };
+  } catch {
+    /* descarga normal */
+  }
+  download(r.url, r.filename);
+  return null;
+}
+
+export const openVideosFolder = () => fetch("/api/save/open", { method: "POST" }).catch(() => undefined);
+
 export function download(url: string, filename: string) {
   const a = document.createElement("a");
   a.href = url;

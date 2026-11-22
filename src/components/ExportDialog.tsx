@@ -1,6 +1,6 @@
-import { Check, Download, X } from "lucide-react";
+import { Check, Download, FolderOpen, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { download, exportVideo, pickMime, type ExportResult } from "../engine/export";
+import { download, exportVideo, openVideosFolder, pickMime, saveVideo, type ExportResult } from "../engine/export";
 import { FORMAT_INFO } from "../lib/presets";
 import { formatTime, totalDuration } from "../lib/util";
 import type { Project } from "../types";
@@ -14,6 +14,7 @@ export function ExportDialog({ project, onClose }: { project: Project; onClose: 
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<ExportResult | null>(null);
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState<{ name: string; dir: string } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const mime = pickMime();
@@ -32,7 +33,7 @@ export function ExportDialog({ project, onClose }: { project: Project; onClose: 
       const r = await exportVideo(project, { canvas: canvasRef.current!, quality, signal: ac.signal, onProgress: setProgress });
       setResult(r);
       setPhase("done");
-      download(r.url, r.filename);
+      setSaved(await saveVideo(r));
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return setPhase("setup");
       setError(e instanceof Error ? e.message : "No se pudo grabar el video.");
@@ -101,7 +102,7 @@ export function ExportDialog({ project, onClose }: { project: Project; onClose: 
 
         {phase === "done" && result && (
           <p className="done-line">
-            <Check size={18} strokeWidth={3} /> Guardado como {result.filename} · {(result.blob.size / 1e6).toFixed(1)} MB
+            <Check size={18} strokeWidth={3} /> {saved ? `Guardado en ${saved.dir}: ${saved.name}` : `Descargado como ${result.filename}`} · {(result.blob.size / 1e6).toFixed(1)} MB
           </p>
         )}
         {phase === "error" && <p className="error-text">{error}</p>}
@@ -125,9 +126,15 @@ export function ExportDialog({ project, onClose }: { project: Project; onClose: 
         )}
         {phase === "done" && result && (
           <>
-            <button className="btn soft" onClick={() => download(result.url, result.filename)}>
-              <Download size={17} /> Descargar otra vez
-            </button>
+            {saved ? (
+              <button className="btn soft" onClick={() => void openVideosFolder()}>
+                <FolderOpen size={17} /> Abrir carpeta
+              </button>
+            ) : (
+              <button className="btn soft" onClick={() => download(result.url, result.filename)}>
+                <Download size={17} /> Descargar otra vez
+              </button>
+            )}
             <button className="btn ink" onClick={close}>
               Listo
             </button>

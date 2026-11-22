@@ -1,6 +1,6 @@
 import { CheckCircle2, CircleDashed, Clapperboard, Download, ExternalLink, XCircle } from "lucide-react";
 import { useRef, useState } from "react";
-import { download, exportVideo, pickMime } from "../engine/export";
+import { exportVideo, pickMime, saveVideo } from "../engine/export";
 import { createStory } from "../lib/api";
 import { formatTime, totalDuration } from "../lib/util";
 import { useStore } from "../store";
@@ -76,7 +76,7 @@ export function Batch() {
       patch(it.key, { status: "grabando", progress: 0 });
       try {
         const r = await exportVideo(p, { canvas: previewRef.current ?? undefined, onProgress: (v) => patch(it.key, { progress: v }) });
-        download(r.url, r.filename);
+        await saveVideo(r);
         setTimeout(() => URL.revokeObjectURL(r.url), 60_000);
         patch(it.key, { status: "descargada" });
       } catch (e) {

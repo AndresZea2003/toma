@@ -36,15 +36,26 @@ export function setLivePlayback(on: boolean) {
 let videosThisFrame = new Set<HTMLVideoElement>();
 let videosLastFrame = new Set<HTMLVideoElement>();
 
+// Las miniaturas dibujan el fotograma que haya: nunca mueven ni pausan los clips del reproductor
+let stillFrame = false;
+
 function syncVideo(v: HTMLVideoElement, local: number) {
+  if (stillFrame) return;
   videosThisFrame.add(v);
   const d = v.duration;
   if (!d || !isFinite(d)) return;
   const target = local % d;
   if (livePlayback) {
     if (v.paused) void v.play().catch(() => undefined);
-    const drift = Math.abs(v.currentTime - target);
-    if (drift > 0.35 && drift < d - 0.35) v.currentTime = target;
+    const diff = target - v.currentTime;
+    const drift = Math.abs(diff);
+    if (drift > 1 && drift < d - 1) {
+      v.currentTime = target; // muy lejos: un único salto
+      v.playbackRate = 1;
+    } else {
+      // Desfase pequeño: se corrige acelerando o frenando un poco, sin saltos
+      v.playbackRate = drift > 0.08 && drift < d - 1 ? (diff > 0 ? 1.08 : 0.92) : 1;
+    }
   } else {
     if (!v.paused) v.pause();
     if (Math.abs(v.currentTime - target) > 0.04) v.currentTime = target;
@@ -511,9 +522,11 @@ export function renderFrame(ctx: Ctx, project: Project, t: number, opts: { grain
   if (opts.grain !== false) drawFinish(ctx, W, H);
 
   // Pausar los clips de escenas que ya no están en pantalla
-  for (const v of videosLastFrame) if (!videosThisFrame.has(v) && !v.paused) v.pause();
-  videosLastFrame = videosThisFrame;
-  videosThisFrame = new Set();
+  if (!stillFrame) {
+    for (const v of videosLastFrame) if (!videosThisFrame.has(v) && !v.paused) v.pause();
+    videosLastFrame = videosThisFrame;
+    videosThisFrame = new Set();
+  }
 
   // Fundido de entrada y salida del video
   const total = starts[starts.length - 1] + scenes[scenes.length - 1].duration;
@@ -530,5 +543,10 @@ export function renderThumb(canvas: HTMLCanvasElement, project: Project, sceneIn
   const { starts } = sceneStarts(project.scenes);
   const s = project.scenes[sceneIndex];
   if (!s) return;
-  renderFrame(ctx, project, starts[sceneIndex] + Math.min(s.duration * 0.7, 2.6), { grain: false });
+  stillFrame = true;
+  try {
+    renderFrame(ctx, project, starts[sceneIndex] + Math.min(s.duration * 0.7, 2.6), { grain: false });
+  } finally {
+    stillFrame = false;
+  }
 }

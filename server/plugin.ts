@@ -1,4 +1,7 @@
-import { readFileSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { createWriteStream, existsSync, mkdirSync, readFileSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect, Plugin } from "vite";
 import { AiError, editScene, generateStory } from "./ai";
@@ -25,6 +28,38 @@ function send(res: ServerResponse, status: number, data: unknown) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.end(JSON.stringify(data));
+}
+
+/** Carpeta donde Toma deja los videos terminados: Videos/Toma (Películas/Toma en Mac) */
+function videosDir() {
+  const dir = process.env.TOMA_VIDEOS_DIR || path.join(os.homedir(), process.platform === "darwin" ? "Movies" : "Videos", "Toma");
+  mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+async function saveRoute(req: IncomingMessage, res: ServerResponse, url: string) {
+  const dir = videosDir();
+  if (url.startsWith("/api/save/open")) {
+    // Abrir la carpeta en el explorador del sistema
+    const cmd = process.platform === "win32" ? "explorer" : process.platform === "darwin" ? "open" : "xdg-open";
+    spawn(cmd, [dir], { detached: true, stdio: "ignore" }).unref();
+    return send(res, 200, { dir });
+  }
+  const raw = new URL(url, "http://x").searchParams.get("name") || "video.mp4";
+  // Solo el nombre, sin rutas ni caracteres raros
+  const clean = path.basename(raw).replace(/[^\w.\- áéíóúñÁÉÍÓÚÑ]/g, "").slice(0, 80) || "video.mp4";
+  const ext = path.extname(clean) || ".mp4";
+  const base = clean.slice(0, clean.length - path.extname(clean).length) || "video";
+  let file = path.join(dir, base + ext);
+  for (let n = 2; existsSync(file); n++) file = path.join(dir, `${base} (${n})${ext}`);
+  await new Promise<void>((resolve, reject) => {
+    const out = createWriteStream(file);
+    req.pipe(out);
+    out.on("finish", () => resolve());
+    out.on("error", reject);
+    req.on("error", reject);
+  });
+  return send(res, 200, { file, dir, name: path.basename(file) });
 }
 
 const TOOLS = ["flow", "chatgpt", "aistudio", "flowmusic"] as const;
@@ -93,6 +128,13 @@ export const handler: Connect.NextHandleFunction = async (req, res, next) => {
     } catch (error) {
       console.error("[toma:robot]", error);
       return send(res, 500, { error: error instanceof Error ? error.message.split("\n")[0] : "Error del piloto" });
+    }
+  }
+  if (req.method === "POST" && req.url?.startsWith("/api/save")) {
+    try {
+      return await saveRoute(req, res, req.url);
+    } catch (error) {
+      return send(res, 500, { error: error instanceof Error ? error.message : "No se pudo guardar" });
     }
   }
   if (req.url?.startsWith("/api/update")) {

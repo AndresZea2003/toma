@@ -35,6 +35,8 @@ export function startMix(ctx: AudioContext, dest: AudioNode, project: Project, o
   musicGain.connect(dest);
   const vol = (project.musicVolume ?? 1) * volume;
   let generated: MusicPlayer | null = null;
+  // Nivel de fondo: una pista propia suena más fuerte que la música generada, así que se atenúa más
+  const base = project.soundtrack ? vol * 0.5 : 1;
   const track = project.soundtrack ? audioBufferNow(project.soundtrack.id) : null;
   if (track) {
     const src = ctx.createBufferSource();
@@ -46,8 +48,8 @@ export function startMix(ctx: AudioContext, dest: AudioNode, project: Project, o
     src.stop(end + 0.1);
     sources.push(src);
     musicGain.gain.setValueAtTime(0, start);
-    musicGain.gain.linearRampToValueAtTime(vol * 1.6, start + 0.6);
-    musicGain.gain.setValueAtTime(vol * 1.6, Math.max(start, end - 1.2));
+    musicGain.gain.linearRampToValueAtTime(base, start + 0.6);
+    musicGain.gain.setValueAtTime(base, Math.max(start, end - 1.2));
     musicGain.gain.linearRampToValueAtTime(0, end);
   } else if (project.music !== "ninguna") {
     generated = new MusicPlayer(ctx);
@@ -58,8 +60,9 @@ export function startMix(ctx: AudioContext, dest: AudioNode, project: Project, o
   const duck = (from: number, to: number) => {
     const a = Math.max(ctx.currentTime, from);
     const b = Math.max(a + 0.1, to);
-    musicGain.gain.setTargetAtTime(0.35 * (track ? 1.6 : 1), a, 0.15);
-    musicGain.gain.setTargetAtTime(track ? 1.6 : 1, b, 0.3);
+    // La música baja mientras suena la voz y vuelve a su nivel, nunca por encima
+    musicGain.gain.setTargetAtTime(base * 0.3, a, 0.15);
+    musicGain.gain.setTargetAtTime(base, b, 0.3);
   };
   if (!track) musicGain.gain.value = 1;
 
