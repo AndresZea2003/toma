@@ -95,6 +95,13 @@ export const handler: Connect.NextHandleFunction = async (req, res, next) => {
       return send(res, 500, { error: error instanceof Error ? error.message.split("\n")[0] : "Error del piloto" });
     }
   }
+  if (req.url?.startsWith("/api/update")) {
+    const host = (globalThis as { __tomaUpdate?: { get(): unknown; check(): void; install(): void } }).__tomaUpdate;
+    if (!host) return send(res, 200, { desktop: false });
+    if (req.method === "POST" && req.url.includes("/check")) host.check();
+    if (req.method === "POST" && req.url.includes("/install")) host.install();
+    return send(res, 200, host.get());
+  }
   if (req.method === "GET" && req.url?.startsWith("/api/ai/providers")) {
     const { cliVersion } = await import("./cli");
     const [claude, codex] = await Promise.all([cliVersion("claude-code"), cliVersion("codex")]);

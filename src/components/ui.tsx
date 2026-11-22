@@ -4,6 +4,7 @@ import { ensureFonts, loadSceneMedia, renderThumb } from "../engine/render";
 import { onMediaFrame } from "../lib/media";
 import { AiPicker } from "./AiPicker";
 import { PilotChip } from "./PilotChip";
+import { UpdateChip } from "./UpdateChip";
 import { FORMAT_INFO } from "../lib/presets";
 import { useStore, type View } from "../store";
 import type { Project } from "../types";
@@ -35,6 +36,7 @@ export function TopBar({ active, children }: { active?: View["name"]; children?:
         </nav>
       )}
       <span className="grow" />
+      <UpdateChip />
       <PilotChip />
       <AiPicker />
       {children}

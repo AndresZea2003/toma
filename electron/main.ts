@@ -31,26 +31,35 @@ function loadEnv() {
  * Actualizaciones: al abrir, Toma mira si hay una versión nueva publicada, la descarga
  * en segundo plano y la instala al cerrar. Solo actúa en la app instalada.
  */
-function checkForUpdates() {
-  if (!app.isPackaged) return;
+type UpdateState = "idle" | "checking" | "none" | "downloading" | "ready" | "error";
+const update: { state: UpdateState; version: string; next?: string; percent?: number; error?: string } = { state: "idle", version: app.getVersion() };
+
+function setupUpdates() {
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
-  autoUpdater.on("update-downloaded", (info) => {
-    void dialog
-      .showMessageBox({
-        type: "info",
-        title: "Toma se actualizó",
-        message: `La versión ${info.version} está lista.`,
-        detail: "Se instalará al cerrar Toma. ¿Reiniciar ahora?",
-        buttons: ["Reiniciar ahora", "Más tarde"],
-        defaultId: 0,
-        cancelId: 1,
-      })
-      .then((r) => r.response === 0 && autoUpdater.quitAndInstall());
-  });
-  // Sin conexión o sin canal de publicación configurado: seguir sin molestar
+  autoUpdater.on("checking-for-update", () => Object.assign(update, { state: "checking", error: undefined }));
+  autoUpdater.on("update-not-available", () => Object.assign(update, { state: "none" }));
+  autoUpdater.on("update-available", (info) => Object.assign(update, { state: "downloading", next: info.version, percent: 0 }));
+  autoUpdater.on("download-progress", (p) => Object.assign(update, { state: "downloading", percent: Math.round(p.percent) }));
+  autoUpdater.on("update-downloaded", (info) => Object.assign(update, { state: "ready", next: info.version, percent: 100 }));
+  autoUpdater.on("error", (e) => Object.assign(update, { state: "error", error: String(e?.message ?? e).slice(0, 200) }));
+}
+
+function checkForUpdates() {
+  if (!app.isPackaged) {
+    Object.assign(update, { state: "error", error: "Las actualizaciones solo funcionan en la app instalada." });
+    return;
+  }
+  // Sin conexión o sin versión publicada: el estado queda en «error» y la app sigue igual
   autoUpdater.checkForUpdates().catch(() => undefined);
 }
+
+// El botón «Actualizar» de la interfaz habla con esto a través del servidor local
+(globalThis as { __tomaUpdate?: unknown }).__tomaUpdate = {
+  get: () => ({ desktop: true, ...update }),
+  check: checkForUpdates,
+  install: () => update.state === "ready" && autoUpdater.quitAndInstall(),
+};
 
 let win: BaseWindow | null = null;
 let ui: WebContentsView | null = null;
@@ -112,7 +121,8 @@ if (!app.requestSingleInstanceLock()) {
       return;
     }
     createWindow();
-    checkForUpdates();
+    setupUpdates();
+    if (app.isPackaged) checkForUpdates();
   });
   app.on("window-all-closed", () => app.quit());
 }
