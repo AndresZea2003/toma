@@ -19,9 +19,14 @@ import {
 const MODEL = () => process.env.CLAUDE_MODEL || "claude-opus-5-5";
 
 let client: Anthropic | null = null;
+let clientKey: string | undefined;
 function getClient() {
   // Resuelve credenciales de ANTHROPIC_API_KEY o de un perfil `ant auth login`.
-  client ??= new Anthropic();
+  // Si la persona cambia su clave en Configuración, el cliente se rehace
+  if (!client || clientKey !== process.env.ANTHROPIC_API_KEY) {
+    clientKey = process.env.ANTHROPIC_API_KEY;
+    client = new Anthropic();
+  }
   return client;
 }
 

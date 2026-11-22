@@ -1,5 +1,5 @@
 // Toma como app de escritorio: una ventana con la interfaz y el servidor dentro.
-import { app, BaseWindow, dialog, Menu, session, shell, WebContentsView } from "electron";
+import { app, BaseWindow, dialog, Menu, safeStorage, session, shell, WebContentsView } from "electron";
 import { autoUpdater } from "electron-updater";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -118,6 +118,13 @@ if (!app.requestSingleInstanceLock()) {
   });
   void app.whenReady().then(async () => {
     loadEnv();
+    // Las claves de Configuración se cifran con el almacén seguro del sistema
+    if (safeStorage.isEncryptionAvailable()) {
+      (globalThis as { __tomaCrypt?: unknown }).__tomaCrypt = {
+        enc: (s: string) => safeStorage.encryptString(s).toString("base64"),
+        dec: (s: string) => safeStorage.decryptString(Buffer.from(s, "base64")),
+      };
+    }
     try {
       await startServer(path.join(__dirname, "..", "dist"), PORT);
     } catch (e) {

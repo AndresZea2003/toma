@@ -2489,3 +2489,43 @@ input[type="range"] {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+.pliego h2 {
+  align-items: center;
+}
+
+/* --- Configuración --- */
+.key-row {
+  display: flex;
+  gap: 8px;
+}
+.key-row .text-input {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+  height: 42px;
+}
+.key-ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ok);
+  font-weight: 700;
+}
+.key-note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  background: var(--liner);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+.key-note svg {
+  flex: none;
+  margin-top: 2px;
+}
+.modal-body a {
+  color: var(--cobalt);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}

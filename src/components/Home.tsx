@@ -1,7 +1,8 @@
-import { X } from "lucide-react";
+import { FolderOpen, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { animateAll } from "../lib/animate";
 import { createStory } from "../lib/api";
+import { openVideosFolder } from "../engine/export";
 import { IDEA_SAMPLES } from "../lib/presets";
 import { useStore } from "../store";
 import type { Project } from "../types";
@@ -117,6 +118,10 @@ export function Home() {
         <aside className="pliego" aria-label="Tus videos">
           <h2>
             Tu pliego {projects.length > 0 && <span className="count">{projects.length}</span>}
+            <span className="grow" />
+            <button className="btn soft sm" onClick={() => void openVideosFolder()} title="Abrir la carpeta donde se guardan los videos descargados">
+              <FolderOpen size={15} /> Videos descargados
+            </button>
           </h2>
           <div className="pliego-grid">
             <div className={busy ? "slot busy" : "slot"}>{busy ? "Imprimiendo…" : "Tu próximo video va aquí"}</div>

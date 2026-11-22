@@ -5,6 +5,7 @@ import { ACTIVE, fitToVoice, musicKey, robotMusic, robotVoice, useRobot, voiceKe
 import { useStore } from "../store";
 import type { MediaRef, Project, Scene } from "../types";
 import { DropZone, RobotLine, useMediaUrl } from "./Material";
+import { useSettings } from "./Settings";
 import { Field, Toggle } from "./ui";
 
 function AudioRow({ media, onRemove, label }: { media: MediaRef; onRemove: () => void; label: string }) {
@@ -76,6 +77,7 @@ export function VoiceOver({ project, scene }: { project: Project; scene: Scene }
   const { updateScene, toast } = useStore.getState();
   const run = useRobot((s) => s.runs[voiceKey(scene.id)]);
   const busy = !!run && ACTIVE.has(run.status);
+  const eleven = useSettings((s) => s.elevenlabs.set);
   const attach = async (f: File) => {
     try {
       const media = await saveMedia(f);
@@ -100,13 +102,13 @@ export function VoiceOver({ project, scene }: { project: Project; scene: Scene }
             }}
           />
           <button className="btn soft sm" style={{ alignSelf: "flex-start" }} disabled={busy} onClick={() => void robotVoice(project.id, scene.id)}>
-            <Bot size={15} /> Otra versión con Gemini
+            <Bot size={15} /> Otra versión con {eleven ? "ElevenLabs" : "Gemini"}
           </button>
         </>
       ) : (
         <>
           <button className="btn toma md robot-go" disabled={busy || !(scene.narration.trim() || scene.headline.trim())} onClick={() => void robotVoice(project.id, scene.id)}>
-            <Bot size={17} strokeWidth={2.4} /> Que Gemini lea la narración
+            <Bot size={17} strokeWidth={2.4} /> Que {eleven ? "ElevenLabs" : "Gemini"} lea la narración
           </button>
           <div className="voice-actions">
             <Recorder onDone={(f) => void attach(f)} />

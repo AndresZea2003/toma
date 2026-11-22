@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect, Plugin } from "vite";
+import { elevenSpeak, elevenVoices, loadSettings, publicSettings, saveSettings } from "./settings";
 import { AiError, createStyleSkill, editScene, generateSceneCode, generateStory } from "./ai";
 
 function readJson(req: IncomingMessage): Promise<any> {
@@ -141,6 +142,29 @@ export const handler: Connect.NextHandleFunction = async (req, res, next) => {
   const origin = req.headers.origin;
   if (req.url?.startsWith("/api/") && origin && !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
     return send(res, 403, { error: "Origen no permitido" });
+  }
+  if (req.url?.startsWith("/api/")) loadSettings(); // aplica las claves guardadas antes de atender nada
+  if (req.url?.startsWith("/api/settings")) {
+    if (req.method === "POST") {
+      const body = await readJson(req);
+      const pick = (k: string) => (body[k] === null ? null : typeof body[k] === "string" ? String(body[k]).slice(0, 300) : undefined);
+      saveSettings({ anthropicKey: pick("anthropicKey"), elevenLabsKey: pick("elevenLabsKey"), elevenLabsVoiceId: pick("elevenLabsVoiceId") });
+    }
+    return send(res, 200, publicSettings());
+  }
+  if (req.url?.startsWith("/api/voice")) {
+    try {
+      if (req.method === "GET") return send(res, 200, await elevenVoices());
+      const body = await readJson(req);
+      if (!body?.text?.trim()) return send(res, 400, { error: "Falta el texto" });
+      const audio = await elevenSpeak(String(body.text).slice(0, 2500), typeof body.voiceId === "string" ? body.voiceId : undefined);
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "audio/mpeg");
+      res.end(audio);
+      return;
+    } catch (error) {
+      return send(res, 502, { error: error instanceof Error ? error.message : "ElevenLabs no respondió" });
+    }
   }
   if (req.url?.startsWith("/api/styles")) {
     try {

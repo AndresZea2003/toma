@@ -13,6 +13,7 @@ import { Inspector, type InspectorTab } from "./Inspector";
 import { importToScene } from "./Material";
 import { Player, type PlayerHandle } from "./Player";
 import { SceneList } from "./SceneList";
+import { SettingsButton } from "./Settings";
 import { Field, Logo, Toggle, useDismiss } from "./ui";
 
 const LANG_PREFIX: Record<string, string> = { English: "en", Português: "pt", Français: "fr" };
@@ -117,6 +118,7 @@ export function Editor({ id, initialScene = 0, initialTab = "texto" }: { id: str
         <span className="grow" />
         <PilotChip />
         <AiPicker />
+        <SettingsButton />
         <VideoSettings id={id} />
         <button
           className="btn toma md"

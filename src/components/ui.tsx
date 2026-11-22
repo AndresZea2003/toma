@@ -5,6 +5,7 @@ import { onCodeFrame } from "../engine/sandbox";
 import { onMediaFrame } from "../lib/media";
 import { AiPicker } from "./AiPicker";
 import { PilotChip } from "./PilotChip";
+import { SettingsButton } from "./Settings";
 import { UpdateChip } from "./UpdateChip";
 import { FORMAT_INFO } from "../lib/presets";
 import { useStore, type View } from "../store";
@@ -40,6 +41,7 @@ export function TopBar({ active, children }: { active?: View["name"]; children?:
       <UpdateChip />
       <PilotChip />
       <AiPicker />
+      <SettingsButton />
       {children}
     </header>
   );

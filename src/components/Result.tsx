@@ -1,5 +1,6 @@
-import { ArrowLeft, Bot, ClipboardCopy, Download, Mic, Music2, SlidersHorizontal, Wand2 } from "lucide-react";
+import { ArrowLeft, Bot, FolderOpen, ClipboardCopy, Download, Mic, Music2, SlidersHorizontal, Wand2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { openVideosFolder } from "../engine/export";
 import { sceneStarts } from "../engine/render";
 import { FORMAT_INFO } from "../lib/presets";
 import { projectKit } from "../lib/prompts";
@@ -8,6 +9,7 @@ import { formatTime, totalDuration } from "../lib/util";
 import { useProject, useStore } from "../store";
 import { ExportDialog } from "./ExportDialog";
 import { Player, type PlayerHandle } from "./Player";
+import { useSettings } from "./Settings";
 import { AnimProgress } from "./Styles";
 import { Thumb, TopBar, useCopy } from "./ui";
 
@@ -20,6 +22,7 @@ export function Result({ id, fresh }: { id: string; fresh?: boolean }) {
   const playerRef = useRef<PlayerHandle>(null);
   const { copied, copy } = useCopy();
   const runs = useRobot((s) => s.runs);
+  const eleven = useSettings((s) => s.elevenlabs.set);
 
   useEffect(() => {
     if (!fresh) return;
@@ -86,6 +89,9 @@ export function Result({ id, fresh }: { id: string; fresh?: boolean }) {
             <button className="btn ink" onClick={() => go({ name: "editor", id: project.id, scene })}>
               <SlidersHorizontal size={18} /> Retocar
             </button>
+            <button className="btn ghost" onClick={() => void openVideosFolder()}>
+              <FolderOpen size={17} /> Abrir carpeta de videos
+            </button>
           </div>
 
           <div>
@@ -147,7 +153,7 @@ export function Result({ id, fresh }: { id: string; fresh?: boolean }) {
               </button>
               <div className="two">
                 <button className="btn soft" disabled={withVoice === project.scenes.length} onClick={() => void robotVoicesAll(project.id)}>
-                  <Mic size={16} /> Voces con Gemini
+                  <Mic size={16} /> Voces con {eleven ? "ElevenLabs" : "Gemini"}
                 </button>
                 <button className="btn soft" disabled={!!runs[musicKey(project.id)]} onClick={() => void robotMusic(project.id)}>
                   <Music2 size={16} /> {project.soundtrack ? "Otra música" : "Música"}

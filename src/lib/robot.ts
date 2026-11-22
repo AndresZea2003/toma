@@ -2,6 +2,7 @@
 // sigue su estado y pega el resultado donde toca, aunque cambies de pantalla.
 import { create } from "zustand";
 import { useStore } from "../store";
+import { useSettings } from "../components/Settings";
 import { useAnim } from "./animate";
 import type { MediaRef, Project, Scene } from "../types";
 import { totalDuration } from "./util";
@@ -160,8 +161,34 @@ export async function robotGenerate(projectId: string, sceneId: string, tool: Ro
   });
 }
 
-/** Voz en off de una escena con Gemini (AI Studio) */
+/** Voz con ElevenLabs, usando la clave de la persona (sin navegador) */
+async function elevenVoice(projectId: string, sceneId: string) {
+  const { project, scene } = find(projectId, sceneId);
+  if (!project || !scene) return;
+  const key = voiceKey(sceneId);
+  const { setRun } = useRobot.getState();
+  const run = (status: RobotJob["status"], message: string) => setRun(key, { jobId: key, tool: "aistudio", kind: "voice", status, message });
+  run("generating", "ElevenLabs está leyendo la narración…");
+  try {
+    const res = await fetch("/api/voice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: voicePrompt(project, scene) }) });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "ElevenLabs no respondió");
+    const media = await saveMedia(new File([await res.blob()], `elevenlabs-${Date.now()}.mp3`, { type: "audio/mpeg" }));
+    const current = find(projectId, sceneId).scene;
+    if (!current) return;
+    replace(current.voiceOver);
+    useStore.getState().updateScene(projectId, sceneId, { voiceOver: media, ...(await fitToVoice(media, current.duration)) });
+    useStore.getState().toast("¡Toma! Voz de ElevenLabs pegada en la escena.", "success");
+    setRun(key, null);
+  } catch (e) {
+    run("error", e instanceof Error ? e.message : "Falló");
+    useStore.getState().toast(e instanceof Error ? e.message : "No se pudo generar la voz", "error");
+    setTimeout(() => useRobot.getState().runs[key]?.status === "error" && setRun(key, null), 5000);
+  }
+}
+
+/** Voz en off de una escena: ElevenLabs si hay clave; si no, Gemini (AI Studio) con el piloto */
 export async function robotVoice(projectId: string, sceneId: string) {
+  if (useSettings.getState().elevenlabs.set) return elevenVoice(projectId, sceneId);
   const { project, scene } = find(projectId, sceneId);
   if (!project || !scene) return;
   await runJob(voiceKey(sceneId), "aistudio", "voice", voicePrompt(project, scene), project.format, async (file) => {
