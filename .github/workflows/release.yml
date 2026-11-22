@@ -9,6 +9,7 @@ permissions:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
@@ -24,9 +25,7 @@ jobs:
         run: npx electron-builder ${{ matrix.os == 'macos-latest' && '--mac' || '--win' }} --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Firma de Mac (opcional; sin esto la app sale sin firmar):
-          CSC_LINK: ${{ secrets.MAC_CERT_P12_BASE64 }}
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # Sin certificado de Apple la app de Mac sale sin firmar.
+          # Al tenerlo, quitar la línea siguiente y añadir CSC_LINK, CSC_KEY_PASSWORD,
+          # APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD y APPLE_TEAM_ID como secretos.
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
