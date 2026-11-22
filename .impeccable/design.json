@@ -1,0 +1,547 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-22T14:54:21.127929+00:00",
+  "title": "Design System: Toma",
+  "extensions": {
+    "colorMeta": {
+      "pink": {
+        "role": "primary",
+        "displayName": "Rosa ¡Toma!",
+        "canonical": "#ff3d8b",
+        "tonalRamp": [
+          "#501e36",
+          "#7e264d",
+          "#ad2e63",
+          "#dc377a",
+          "#ff6ea8",
+          "#ff9ec5",
+          "#ffc9df",
+          "#ffecf3"
+        ]
+      },
+      "pink-deep": {
+        "role": "primary",
+        "displayName": "Rosa profundo",
+        "canonical": "#c21f63",
+        "tonalRamp": [
+          "#40162c",
+          "#63183b",
+          "#851b49",
+          "#a81d58",
+          "#d1578a",
+          "#e18fb1",
+          "#eec0d3",
+          "#f9e9ef"
+        ]
+      },
+      "pink-soft": {
+        "role": "primary",
+        "displayName": "Rosa suave",
+        "canonical": "#ffe2ee",
+        "tonalRamp": [
+          "#50474f",
+          "#7e7079",
+          "#ad9aa4",
+          "#dcc3ce",
+          "#ffe9f2",
+          "#fff1f7",
+          "#fff7fa",
+          "#fffcfd"
+        ]
+      },
+      "cobalt": {
+        "role": "secondary",
+        "displayName": "Cobalto de paso",
+        "canonical": "#2d5bff",
+        "tonalRamp": [
+          "#1b2553",
+          "#203381",
+          "#2542af",
+          "#2950dd",
+          "#6284ff",
+          "#96adff",
+          "#c4d1ff",
+          "#eaefff"
+        ]
+      },
+      "cobalt-soft": {
+        "role": "secondary",
+        "displayName": "Cobalto suave",
+        "canonical": "#e4eaff",
+        "tonalRamp": [
+          "#494953",
+          "#727481",
+          "#9c9faf",
+          "#c5cadd",
+          "#ebefff",
+          "#f2f5ff",
+          "#f7f9ff",
+          "#fcfdff"
+        ]
+      },
+      "lime": {
+        "role": "tertiary",
+        "displayName": "Lima de logro",
+        "canonical": "#b6f03c",
+        "tonalRamp": [
+          "#3d4a23",
+          "#5d7629",
+          "#7ea330",
+          "#9ecf37",
+          "#c8f46d",
+          "#dbf89e",
+          "#ebfbc8",
+          "#f8feec"
+        ]
+      },
+      "lime-soft": {
+        "role": "tertiary",
+        "displayName": "Lima suave",
+        "canonical": "#ecfad0",
+        "tonalRamp": [
+          "#4b4d48",
+          "#767b6c",
+          "#a1a990",
+          "#ccd7b5",
+          "#f1fbdc",
+          "#f6fde8",
+          "#fafef2",
+          "#fdfffa"
+        ]
+      },
+      "lime-ink": {
+        "role": "tertiary",
+        "displayName": "Tinta lima",
+        "canonical": "#3f5a0d",
+        "tonalRamp": [
+          "#202517",
+          "#283314",
+          "#304112",
+          "#394f0f",
+          "#6f834a",
+          "#9fad86",
+          "#c9d1bb",
+          "#ecefe7"
+        ]
+      },
+      "tang": {
+        "role": "tertiary",
+        "displayName": "Mandarina de conteo",
+        "canonical": "#ff8a1f",
+        "tonalRamp": [
+          "#50311b",
+          "#7e491c",
+          "#ad601d",
+          "#dc781e",
+          "#ffa757",
+          "#ffc58f",
+          "#ffdec0",
+          "#fff3e9"
+        ]
+      },
+      "liner": {
+        "role": "neutral",
+        "displayName": "Pliego",
+        "canonical": "#eceef6",
+        "tonalRamp": [
+          "#4b4a51",
+          "#76767d",
+          "#a1a1a9",
+          "#cccdd5",
+          "#f1f2f8",
+          "#f6f7fb",
+          "#fafafc",
+          "#fdfdfe"
+        ]
+      },
+      "liner-dot": {
+        "role": "neutral",
+        "displayName": "Punto de corte",
+        "canonical": "#d3d7e6",
+        "tonalRamp": [
+          "#45444d",
+          "#6a6b76",
+          "#91929f",
+          "#b7bac7",
+          "#dee1ec",
+          "#e9ebf3",
+          "#f3f4f8",
+          "#fbfbfd"
+        ]
+      },
+      "sheet": {
+        "role": "neutral",
+        "displayName": "Hoja",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#504e53",
+          "#7e7d81",
+          "#adacaf",
+          "#dcdcdd",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#15131a",
+        "tonalRamp": [
+          "#15131a",
+          "#15131a",
+          "#15131a",
+          "#15131a",
+          "#504e53",
+          "#8a898d",
+          "#bdbdbf",
+          "#e8e7e8"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Tinta 2",
+        "canonical": "#47444f",
+        "tonalRamp": [
+          "#221f27",
+          "#2c2932",
+          "#36333c",
+          "#403d47",
+          "#75737b",
+          "#a3a2a7",
+          "#cbcbce",
+          "#edeced"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Tinta 3",
+        "canonical": "#636070",
+        "tonalRamp": [
+          "#292630",
+          "#383641",
+          "#484552",
+          "#575463",
+          "#8a8894",
+          "#b1b0b8",
+          "#d3d2d7",
+          "#efeff1"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Línea",
+        "canonical": "#e2e4ee",
+        "tonalRamp": [
+          "#48474f",
+          "#717179",
+          "#9a9ba4",
+          "#c3c5ce",
+          "#e9ebf2",
+          "#f1f2f7",
+          "#f7f7fa",
+          "#fcfcfd"
+        ]
+      },
+      "line-2": {
+        "role": "neutral",
+        "displayName": "Línea 2",
+        "canonical": "#c7cad9",
+        "tonalRamp": [
+          "#42414a",
+          "#656570",
+          "#898a96",
+          "#acafbc",
+          "#d5d7e3",
+          "#e3e5ec",
+          "#eff0f4",
+          "#f9fafb"
+        ]
+      },
+      "danger": {
+        "role": "neutral",
+        "displayName": "Peligro",
+        "canonical": "#d8343f",
+        "tonalRamp": [
+          "#461b23",
+          "#6d222b",
+          "#942832",
+          "#bb2f39",
+          "#e2676f",
+          "#ec9a9f",
+          "#f4c6c9",
+          "#fbebec"
+        ]
+      },
+      "ok": {
+        "role": "neutral",
+        "displayName": "Bien",
+        "canonical": "#1f8a4c",
+        "tonalRamp": [
+          "#183127",
+          "#1a4931",
+          "#1c603b",
+          "#1e7845",
+          "#57a779",
+          "#8fc5a6",
+          "#c0decd",
+          "#e9f3ed"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Titular de Crear y En lote; máximo ~13ch, balanceado; el remate puede ir en una pegatina lima."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Título editable del video en Resultado."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Títulos de sección, modal y cola."
+      },
+      "title-sm": {
+        "displayName": "Title pequeño",
+        "purpose": "Títulos de panel y de la barra del editor (17-20px)."
+      },
+      "action": {
+        "displayName": "Acción",
+        "purpose": "Texto del botón ¡Toma! (17px en la versión media)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Interfaz general en Onest."
+      },
+      "body-lg": {
+        "displayName": "Body grande",
+        "purpose": "Campo de idea: escribir se siente grande."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Etiquetas de campo, números de escena y estados; cifras tabulares en tiempos."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Pistas y metadatos en ink-3."
+      }
+    },
+    "shadows": [
+      {
+        "name": "lift-lo",
+        "value": "0 1px 0 rgba(21, 19, 26, 0.06), 0 4px 8px -6px rgba(21, 19, 26, 0.3)",
+        "purpose": "Hojas, miniaturas, contadores, controles blancos sobre pliego."
+      },
+      {
+        "name": "lift",
+        "value": "0 2px 0 rgba(21, 19, 26, 0.07), 0 10px 18px -10px rgba(21, 19, 26, 0.38)",
+        "purpose": "Pegatinas en reposo."
+      },
+      {
+        "name": "lift-hi",
+        "value": "0 3px 0 rgba(21, 19, 26, 0.07), 0 20px 30px -14px rgba(21, 19, 26, 0.45)",
+        "purpose": "Pegatina levantada o recién pegada; menús y modales (con anillo 0 0 0 1px line)."
+      },
+      {
+        "name": "peel-drop",
+        "value": "drop-shadow(0 2px 0 rgba(21, 19, 26, 0.07)) drop-shadow(0 9px 9px rgba(21, 19, 26, 0.22))",
+        "purpose": "Filtro de la pegatina despegable: sigue la silueta recortada de la esquina."
+      },
+      {
+        "name": "focus-ring",
+        "value": "0 0 0 3px #fff, 0 0 0 5.5px #2d5bff",
+        "purpose": "Anillo de foco troquelado: blanco y luego cobalto."
+      },
+      {
+        "name": "edge",
+        "value": "5px solid #fff",
+        "purpose": "Borde troquelado de toda pegatina (border, no sombra)."
+      },
+      {
+        "name": "key-lip",
+        "value": "0 4px 0 var(--pink-deep), 0 14px 22px -12px rgba(21, 19, 26, 0.5)",
+        "purpose": "Canto de tecla: solo en las acciones rosas (¡Toma!, reproducir). Al pulsar baja 3px y el canto casi desaparece. Nunca en tarjetas ni pegatinas."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.2, 0.9, 0.25, 1)",
+        "purpose": "Transiciones de estado y la esquina que se despega (--peel, 0.35s)."
+      },
+      {
+        "name": "spring",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Frenado de los gestos de pegatina; el rebote vive en el keyframe slap."
+      },
+      {
+        "name": "slap",
+        "value": "0.55s spring: scale(1.35) giro -6° → scale(0.96) → 1; escalonado 70ms",
+        "purpose": "Una pegatina se pega: videos del pliego, sellos, ¡Copiado!, avisos y modales (0.45s)."
+      },
+      {
+        "name": "peel",
+        "value": "--peel 0 → 26px (pista) → 38px (hover / despegado)",
+        "purpose": "La esquina inferior derecha se levanta: despegar = descargar."
+      },
+      {
+        "name": "nudge",
+        "value": "0.4s ease, ±6px lateral",
+        "purpose": "El campo de idea la pide cuando falta."
+      },
+      {
+        "name": "pop",
+        "value": "0.18s ease, translateY(-4px) scale(0.98) → reposo",
+        "purpose": "Apertura de menús y popovers."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "prefers-reduced-motion anula animaciones y transiciones."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "1180px"
+      },
+      {
+        "name": "stack",
+        "value": "980px"
+      },
+      {
+        "name": "mobile",
+        "value": "640px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botón ¡Toma!",
+      "kind": "button",
+      "refersTo": "button-toma",
+      "description": "La acción principal, una por vista: crear, descargar.",
+      "html": "<button class=\"ds-btn-toma\">¡Toma!</button>",
+      "css": ".ds-btn-toma{font-family:var(--display,'Gabarito',sans-serif);font-weight:800;font-size:23px;letter-spacing:-0.01em;color:#fff;background:var(--pink,#ff3d8b);border:5px solid #fff;border-radius:20px;padding:14px 30px 15px;box-shadow:var(--lift-hi,0 3px 0 rgba(21,19,26,.07),0 20px 30px -14px rgba(21,19,26,.45));cursor:pointer;transition:transform .12s cubic-bezier(.2,.9,.25,1)}.ds-btn-toma:hover{transform:translateY(-1px) rotate(-1deg)}.ds-btn-toma:active{transform:translateY(3px) scale(.98)}.ds-btn-toma:focus-visible{outline:none;box-shadow:0 0 0 3px #fff,0 0 0 5.5px var(--cobalt,#2d5bff)}"
+    },
+    {
+      "name": "Botón tinta",
+      "kind": "button",
+      "refersTo": "button-ink",
+      "description": "La segunda salida: Retocar, Copiar prompt.",
+      "html": "<button class=\"ds-btn-ink\">Retocar</button>",
+      "css": ".ds-btn-ink{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 18px;border:0;border-radius:var(--r-ctl,14px);background:var(--ink,#15131a);color:#fff;font-family:var(--ui,'Onest',sans-serif);font-weight:600;cursor:pointer;transition:background .15s}.ds-btn-ink:hover{background:#2b2833}.ds-btn-ink:focus-visible{outline:none;box-shadow:0 0 0 3px #fff,0 0 0 5.5px var(--cobalt,#2d5bff)}"
+    },
+    {
+      "name": "Botón suave",
+      "kind": "button",
+      "refersTo": "button-soft",
+      "description": "Acciones terciarias sobre hoja blanca.",
+      "html": "<button class=\"ds-btn-soft\">Añadir escena</button>",
+      "css": ".ds-btn-soft{height:42px;padding:0 18px;border:0;border-radius:var(--r-ctl,14px);background:var(--liner,#eceef6);color:var(--ink,#15131a);font-family:var(--ui,'Onest',sans-serif);font-weight:600;cursor:pointer;transition:background .15s}.ds-btn-soft:hover{background:var(--line,#e2e4ee)}.ds-btn-soft:focus-visible{outline:none;box-shadow:0 0 0 3px #fff,0 0 0 5.5px var(--cobalt,#2d5bff)}"
+    },
+    {
+      "name": "Chip con menú",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Valor por defecto que se cambia a un toque (formato, duración, tono).",
+      "html": "<button class=\"ds-chip\">Duración <b>30 s</b><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\"><path d=\"m6 9 6 6 6-6\"/></svg></button>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 12px 0 14px;border:0;border-radius:999px;background:var(--liner,#eceef6);color:var(--ink-2,#47444f);font-family:var(--ui,'Onest',sans-serif);font-weight:600;font-size:14px;cursor:pointer;transition:background .15s}.ds-chip b{color:var(--ink,#15131a);font-weight:700}.ds-chip:hover{background:var(--line,#e2e4ee)}.ds-chip:focus-visible{outline:none;box-shadow:0 0 0 3px #fff,0 0 0 5.5px var(--cobalt,#2d5bff)}"
+    },
+    {
+      "name": "Campo de idea",
+      "kind": "input",
+      "refersTo": "input-idea",
+      "description": "El único campo obligatorio; grande, con borde de tinta.",
+      "html": "<textarea class=\"ds-idea\" placeholder=\"Por ejemplo: un faro que se siente solo\"></textarea>",
+      "css": ".ds-idea{width:100%;min-height:132px;border:2.5px solid var(--ink,#15131a);border-radius:22px;background:#fff;padding:20px 22px;font-family:var(--ui,'Onest',sans-serif);font-size:21px;line-height:1.45;color:var(--ink,#15131a);transition:box-shadow .15s}.ds-idea::placeholder{color:var(--ink-3,#636070)}.ds-idea:focus{outline:none;box-shadow:0 0 0 5px var(--cobalt-soft,#e4eaff)}"
+    },
+    {
+      "name": "Pestañas",
+      "kind": "nav",
+      "refersTo": "tab",
+      "description": "Crear / En lote en la barra superior.",
+      "html": "<nav class=\"ds-tabs\"><button class=\"ds-tab ds-on\">Crear</button><button class=\"ds-tab\">En lote</button></nav>",
+      "css": ".ds-tabs{display:flex;gap:4px}.ds-tab{height:38px;padding:0 16px;border:0;border-radius:999px;background:none;color:var(--ink-2,#47444f);font-family:var(--ui,'Onest',sans-serif);font-weight:600;cursor:pointer}.ds-tab:hover{background:rgba(255,255,255,.7);color:var(--ink,#15131a)}.ds-tab.ds-on{background:var(--ink,#15131a);color:#fff}.ds-tab:focus-visible{outline:none;box-shadow:0 0 0 3px #fff,0 0 0 5.5px var(--cobalt,#2d5bff)}"
+    },
+    {
+      "name": "Pegatina de video",
+      "kind": "card",
+      "refersTo": "sticker",
+      "description": "Cada video del pliego: 9:16, troquel blanco, giro propio, esquina que se despega.",
+      "html": "<div class=\"ds-peel\" tabindex=\"0\"><div class=\"ds-vid\"></div></div>",
+      "css": ".ds-peel{position:relative;width:150px;rotate:-2.5deg;filter:drop-shadow(0 2px 0 rgba(21,19,26,.07)) drop-shadow(0 9px 9px rgba(21,19,26,.22));--p:26px;transition:rotate .3s cubic-bezier(.16,1,.3,1)}.ds-peel:hover,.ds-peel:focus-visible{rotate:0deg;--p:38px;outline:none}.ds-vid{aspect-ratio:9/16;border:5px solid #fff;border-radius:var(--r-sticker,18px);background:var(--ink,#15131a);clip-path:polygon(0 0,100% 0,100% calc(100% - var(--p)),calc(100% - var(--p)) 100%,0 100%)}.ds-peel::after{content:'';position:absolute;right:0;bottom:0;width:var(--p);height:var(--p);background:linear-gradient(135deg,#fff 35%,#d9dcea 100%);clip-path:polygon(0 0,100% 0,0 100%)}"
+    },
+    {
+      "name": "Contador mandarina",
+      "kind": "custom",
+      "refersTo": "sticker-count",
+      "description": "Cifra-pegatina junto a un título de sección.",
+      "html": "<span class=\"ds-count\">4</span>",
+      "css": ".ds-count{display:inline-grid;place-items:center;min-width:28px;height:26px;padding:0 7px 2px;font-family:var(--display,'Gabarito',sans-serif);font-weight:800;font-size:14px;color:var(--ink,#15131a);background:var(--tang,#ff8a1f);border:3px solid #fff;border-radius:10px;box-shadow:var(--lift-lo,0 1px 0 rgba(21,19,26,.06),0 4px 8px -6px rgba(21,19,26,.3));transform:rotate(6deg)}"
+    },
+    {
+      "name": "Sello lima",
+      "kind": "custom",
+      "refersTo": "sticker-tag",
+      "description": "Pegatina de logro: remate del titular, sello ¡Toma! del resultado, ¡Copiado!.",
+      "html": "<span class=\"ds-stamp\">Sale un video.</span>",
+      "css": ".ds-stamp{display:inline-block;font-family:var(--display,'Gabarito',sans-serif);font-weight:900;font-size:30px;color:var(--ink,#15131a);background:var(--lime,#b6f03c);border:5px solid #fff;border-radius:18px;padding:6px 18px 9px;box-shadow:var(--lift,0 2px 0 rgba(21,19,26,.07),0 10px 18px -10px rgba(21,19,26,.38));transform:rotate(-2deg)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "El pliego de pegatinas",
+    "overview": "Toda la interfaz es una sola capa física: pegatinas planas de color, troqueladas con un borde blanco grueso, pegadas sobre un pliego claro con retícula de puntos de corte. Cada video es una pegatina 9:16; crear es ver cómo se pegan al pliego; descargar es despegarla. La metáfora no es decoración: decide la forma (borde blanco, esquinas generosas, leve giro), la profundidad (una sombra corta y baja, nunca capas apiladas) y el movimiento (el golpe de «pegar» y la esquina que se levanta).\n\nLa densidad es baja y amable: hojas blancas grandes, titulares Gabarito muy negros y apretados, controles redondos con valores por defecto a un toque. El color plano se reparte con disciplina: rosa para actuar, cobalto para lo seleccionado, lima para los logros, mandarina para contar. El resto es tinta sobre blanco y pliego.\n\nRechazos confirmados por la dirección: la herramienta de IA oscura con caja de prompt y brillo violeta; degradados y brillos decorativos en la interfaz.",
+    "keyCharacteristics": [
+      "Pliego claro (`liner`) con retícula de puntos de 24px como fondo de toda la app.",
+      "Pegatina = borde blanco de 5px + radio de 18px + sombra `lift`; es la unidad del sistema.",
+      "Una sola capa: pegatina sobre pliego u hoja; nada de cajas dentro de cajas.",
+      "Color plano de pegatina con roles fijos; cero degradados decorativos.",
+      "Movimiento con resorte: «pegar» (slap) al aparecer, «despegar» (peel) al descargar."
+    ],
+    "rules": [
+      {
+        "name": "The Un Color, Un Trabajo Rule",
+        "body": "Rosa actúa, cobalto señala lo actual, lima celebra, mandarina cuenta. Un color de pegatina nunca cambia de trabajo en otra pantalla.",
+        "section": "colors"
+      },
+      {
+        "name": "The Cobalto Reservado Rule",
+        "body": "El cobalto no decora ni llama a la acción: aparece solo donde algo está elegido, enfocado o recibiendo un arrastre.",
+        "section": "colors"
+      },
+      {
+        "name": "The Rótulo Rule",
+        "body": "Gabarito solo para titulares, títulos, cifras-pegatina y el botón ¡Toma!; todo lo que se lee de corrido o se rellena va en Onest. Sin mayúsculas sostenidas ni tracking positivo.",
+        "section": "typography"
+      },
+      {
+        "name": "The Una Capa Rule",
+        "body": "Nada se apila sobre algo que ya está apilado: dentro de una hoja o panel, las subsecciones se separan con una línea superior de 2px (`line`), no con otra caja con fondo.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Esquina que se Despega Rule",
+        "body": "Lo que se puede llevar (un video) se marca levantando su esquina inferior derecha: la pegatina se recorta en diagonal y una solapa blanca, sombreada hacia el pliegue, se dobla encima. Es el único sombreado en degradado admitido en la interfaz.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "**Do** usar el borde blanco troquelado (`--edge`, 5px) y `r-sticker` (18px) en todo lo que sea una pegatina: videos, sellos, contadores, etiquetas.",
+      "**Do** reservar el rosa para la acción principal: una sola acción rosa visible por vista.",
+      "**Do** marcar lo seleccionado, enfocado o recibiendo un arrastre en cobalto sobre cobalto suave, y nada más en cobalto.",
+      "**Do** celebrar con pegatinas lima que entran con «slap» (0.45-0.55s, `--spring`).",
+      "**Do** separar subsecciones dentro de una hoja con una línea superior de 2px `line`.",
+      "**Do** respetar `prefers-reduced-motion`: animaciones y transiciones a 0.01ms."
+    ],
+    "donts": [
+      "**Don't** usar degradados, brillos o resplandores decorativos en la interfaz; el único degradado es el sombreado de la solapa al despegar (y la retícula de puntos del pliego).",
+      "**Don't** volver a la herramienta de IA oscura: nada de fondos negros de pantalla completa ni brillo violeta.",
+      "**Don't** meter cajas dentro de cajas: una pegatina va sobre pliego u hoja, nunca sobre otra tarjeta con fondo.",
+      "**Don't** girar controles ni texto de lectura; el giro es de las pegatinas.",
+      "**Don't** usar mandarina para acciones ni lima para errores."
+    ]
+  }
+}

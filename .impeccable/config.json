@@ -1,0 +1,20 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "fraunces",
+        "createdAt": "2026-11-22T14:54:08.754Z",
+        "reason": "assistant decision: index.html loads Fraunces only for the canvas video themes in src/lib/presets.ts (video content), not the UI system"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "plus jakarta sans",
+        "createdAt": "2026-11-22T14:54:09.105Z",
+        "reason": "assistant decision: index.html loads Plus Jakarta Sans only for the canvas video themes in src/lib/presets.ts (video content), not the UI system"
+      }
+    ]
+  }
+}
