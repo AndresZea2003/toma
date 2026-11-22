@@ -2,6 +2,7 @@
 // sigue su estado y pega el resultado donde toca, aunque cambies de pantalla.
 import { create } from "zustand";
 import { useStore } from "../store";
+import { useAnim } from "./animate";
 import type { MediaRef, Project, Scene } from "../types";
 import { totalDuration } from "./util";
 import { scenePrompt } from "./prompts";
@@ -71,6 +72,8 @@ const MOOD: Record<string, string> = {
 
 export function musicPrompt(project: Project) {
   const secs = Math.round(totalDuration(project.scenes));
+  const preset = useAnim.getState().styles.find((s) => s.id === project.styleId)?.musicPrompt;
+  if (preset) return `${preset}. Instrumental background music for a ${secs}-second short video about: ${project.idea}. No vocals, no lyrics, clean ending, works under a voice-over.`;
   return [
     `Instrumental background music for a ${secs}-second ${project.format === "9:16" ? "vertical social media story" : "short video"}.`,
     `Topic: ${project.idea}.`,

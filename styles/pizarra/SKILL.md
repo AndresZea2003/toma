@@ -1,6 +1,11 @@
 ---
 name: Pizarra
 description: Clase dibujada con tiza sobre pizarra verde oscura: trazos a mano, flechas, subrayados y esquemas que se escriben solos.
+music: calma
+musicPrompt: Light acoustic guitar and soft marimba, curious and friendly classroom mood, no vocals
+hook: Pregunta directa. La duda que el espectador ya se ha hecho alguna vez.
+tone: Educativo
+seconds: 45
 ---
 
 # Pizarra: explicación a tiza

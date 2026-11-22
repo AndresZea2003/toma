@@ -145,7 +145,7 @@ export const handler: Connect.NextHandleFunction = async (req, res, next) => {
   if (req.url?.startsWith("/api/styles")) {
     try {
       const styles = await import("./styles");
-      const pub = (s: { id: string; name: string; description: string; builtin: boolean }) => ({ id: s.id, name: s.name, description: s.description, builtin: s.builtin });
+      const pub = ({ body: _body, ...rest }: import("./styles").StyleSkill) => rest;
       if (req.method === "GET") return send(res, 200, styles.listStyles().map(pub));
       if (req.method === "DELETE") return send(res, 200, { ok: styles.deleteStyle(decodeURIComponent(req.url.split("/")[3] ?? "")) });
       if (req.method === "POST") {

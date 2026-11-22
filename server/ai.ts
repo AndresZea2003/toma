@@ -126,7 +126,7 @@ function skillNote(styleId?: string) {
   const skill = styleId ? getStyle(styleId) : undefined;
   if (!skill) return "";
   return `
-IMPORTANTE: este video NO usa los fondos ni los emojis descritos arriba. Cada escena la animará después un programador siguiendo la skill de estilo «${skill.name}». Escribe el guion según esa skill: respeta su sección de guion (estructura, longitud de headline, tono) y usa visualPrompt para describir con precisión la animación de la escena en ese estilo (en el idioma del video). Rellena background, actors, camera y transition con valores cualesquiera válidos.
+${skill.hook ? `El video abre con este tipo de gancho: ${skill.hook}\n` : ""}IMPORTANTE: este video NO usa los fondos ni los emojis descritos arriba. Cada escena la animará después un programador siguiendo la skill de estilo «${skill.name}». Escribe el guion según esa skill: respeta su sección de guion (estructura, longitud de headline, tono) y usa visualPrompt para describir con precisión la animación de la escena en ese estilo (en el idioma del video). Rellena background, actors, camera y transition con valores cualesquiera válidos.
 
 <skill>
 ${skill.body}
@@ -208,7 +208,11 @@ async function callJson<T>(prompt: string, schema: Record<string, unknown>, defa
 }
 
 export async function generateStory(r: StoryRequest & { ai?: Partial<AiSettings> }): Promise<StoryDraft> {
-  return callJson<StoryDraft>(storyPrompt(r), storySchema, "medium", r.ai);
+  const draft = await callJson<StoryDraft>(storyPrompt(r), storySchema, "medium", r.ai);
+  // El preset del estilo manda sobre la música que eligió el guionista
+  const preset = r.styleId ? getStyle(r.styleId)?.music : undefined;
+  if (preset && (MUSIC as readonly string[]).includes(preset)) draft.music = preset as StoryDraft["music"];
+  return draft;
 }
 
 export async function editScene(r: SceneEditRequest & { ai?: Partial<AiSettings> }): Promise<StoryDraft["scenes"][number]> {
@@ -269,6 +273,14 @@ export interface SceneCodeRequest {
   ai?: Partial<AiSettings>;
 }
 
+const cleanCode = (out: unknown) =>
+  String(out ?? "")
+    .trim()
+    .replace(/^```[a-z]*\r?\n?/i, "")
+    .replace(/```\s*$/, "")
+    .replace(/^function\s+draw\s*\([^)]*\)\s*\{([\s\S]*)\}\s*$/, "$1")
+    .trim();
+
 /** Pide código: con Claude Code o Codex en texto plano (sin JSON que escapar); con la API, salida estructurada */
 async function callCode(prompt: string, system: string, ai?: Partial<AiSettings>): Promise<string> {
   if (ai?.provider === "claude-code" || ai?.provider === "codex") {
@@ -305,48 +317,95 @@ Escena ${r.index + 1} de ${r.total} (dura ${r.scene.duration} s):
 ${r.currentCode ? `\nCódigo actual de esta escena:\n${r.currentCode}\n` : ""}${r.error ? `\nEse código falló al ejecutarse con este error, corrígelo: ${r.error}\n` : ""}${r.instruction ? `\nCambio pedido por el creador: ${r.instruction}\n` : ""}
 Escribe el cuerpo de draw para esta escena, sincronizando las entradas con el orden de la narración.`;
   const out = await callCode(prompt, system, r.ai);
-  const code = String(out ?? "")
-    .trim()
-    .replace(/^```[a-z]*\r?\n?/i, "")
-    .replace(/```\s*$/, "")
-    .replace(/^function\s+draw\s*\([^)]*\)\s*\{([\s\S]*)\}\s*$/, "$1")
-    .trim();
+  const code = cleanCode(out);
   if (code.length < 40) throw new AiError("bad_output", "La IA no devolvió una animación. Inténtalo de nuevo.");
   return { code };
 }
 
 // ---------- Crear la skill de un estilo nuevo ----------
 
+const TONE_LIST = ["Inspirador", "Divertido", "Misterioso", "Educativo", "Emotivo", "Vendedor"];
+
 const skillSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["description", "skill"],
+  required: ["description", "music", "musicPrompt", "hook", "tone", "seconds", "skill"],
   properties: {
     description: { type: "string", description: "Una frase en español que describe el estilo, para la biblioteca" },
+    music: { type: "string", enum: [...MUSIC], description: "Música generada que mejor encaja" },
+    musicPrompt: { type: "string", description: "In English: one sentence describing the ideal background music (genre, instruments, mood), instrumental" },
+    hook: { type: "string", description: "En español, una frase: el tipo de gancho con el que abren los videos de este estilo" },
+    tone: { type: "string", enum: TONE_LIST },
+    seconds: { type: "number", description: "Duración recomendada: 15, 30, 45 o 60" },
     skill: { type: "string", description: "El documento de la skill en Markdown, sin frontmatter" },
   },
 };
 
+interface SkillDraft {
+  description: string;
+  music: string;
+  musicPrompt: string;
+  hook: string;
+  tone: string;
+  seconds: number;
+  skill: string;
+}
+
 export async function createStyleSkill(r: { name: string; brief: string; ai?: Partial<AiSettings> }): Promise<StyleSkill> {
   const example = getStyle("diagrama");
-  const system = `Escribes «skills de estilo» para Toma, una app que crea videos cortos animados. Una skill es un documento en Markdown que le enseña a otro modelo a guionizar y a animar con canvas 2D en un estilo visual concreto, de forma que todas las escenas de todos los videos salgan coherentes.
+  const system = `Escribes «skills de estilo» para Toma, una app que crea videos cortos animados. Una skill es un documento en Markdown que le enseña a otro modelo a guionizar y a animar con canvas 2D en un estilo visual concreto, de forma que todas las escenas de todos los videos salgan coherentes. Además es un preset: fija la música, el tipo de gancho, el tono y la duración que mejor le van al estilo.
 
 Las animaciones se programan bajo este contrato técnico (la skill no lo repite, pero todo lo que proponga debe ser posible con él):
 
 ${CODE_CONTRACT}
 
-Una buena skill tiene estas secciones, en este orden: una frase de qué es y para qué sirve; «Guion» (estructura de escenas y reglas de headline, narration y visualPrompt); «Lenguaje visual» (fondo, colores exactos en hex, trazo, tipografía de sistema, personajes u objetos recurrentes, composición); «Movimiento» (cómo entra cada cosa, tiempos, qué sigue vivo); «Piezas» (un bloque de código JavaScript con 3 a 6 funciones reutilizables que cumplan el contrato); y «Evita». Sé concreto: valores, proporciones respecto a u, tiempos en segundos. Escribe en español.
+Una buena skill tiene estas secciones, en este orden: una frase de qué es y para qué sirve; «Guion» (estructura de escenas, cómo es el gancho de la primera escena, y reglas de headline, narration y visualPrompt); «Lenguaje visual» (fondo, colores exactos en hex, trazo, tipografía de sistema, personajes u objetos recurrentes, composición); «Movimiento» (cómo entra cada cosa, tiempos, qué sigue vivo); «Piezas» (un bloque de código JavaScript con 3 a 6 funciones reutilizables que cumplan el contrato); y «Evita». Sé concreto: valores, proporciones respecto a u, tiempos en segundos. Escribe en español.
 ${example ? `\nEjemplo de una skill bien hecha (otro estilo, solo como referencia de nivel de detalle):\n\n${example.body}` : ""}`;
-  const ask = `Nombre del estilo: ${r.name}\n\nCómo lo describe el creador:\n${r.brief}\n\nEscribe la skill completa de este estilo.`;
-  let out: { description: string; skill: string };
+  const ask = `Nombre del estilo: ${r.name}\n\nCómo lo describe el creador:\n${r.brief}\n\nEscribe la skill completa de este estilo y su preset.`;
+  let out: SkillDraft;
   if (r.ai?.provider === "claude-code" || r.ai?.provider === "codex") {
-    // Markdown con código: en texto plano, con la descripción en la primera línea
-    const text = await cliText(r.ai.provider, system, `${ask}\n\nFormato de la respuesta: la primera línea es «DESCRIPCION: » seguida de una frase que describe el estilo; a partir de la segunda línea, el documento Markdown de la skill. Nada más.`, r.ai.model, r.ai.effort).catch((e) => {
+    // Markdown con código: en texto plano, con el preset en las primeras líneas
+    const text = await cliText(
+      r.ai.provider,
+      system,
+      `${ask}\n\nFormato exacto de la respuesta, sin nada más:\nDESCRIPCION: una frase que describe el estilo\nMUSICA: una de ${MUSIC.join(", ")}\nPROMPT_MUSICA: in English, one sentence describing the ideal instrumental background music\nGANCHO: una frase con el tipo de gancho que abre los videos\nTONO: uno de ${TONE_LIST.join(", ")}\nSEGUNDOS: 15, 30, 45 o 60\n===\n(el documento Markdown de la skill)`,
+      r.ai.model,
+      r.ai.effort,
+    ).catch((e) => {
       throw new AiError("api", e instanceof Error ? e.message : "No se pudo escribir la skill");
     });
-    const m = text.match(/^\s*DESCRIPCI[OÓ]N:\s*(.+)\r?\n([\s\S]*)$/i);
-    out = { description: m?.[1].trim() ?? "", skill: (m?.[2] ?? text).trim() };
-  } else out = await callJson<{ description: string; skill: string }>(ask, skillSchema, "high", r.ai, system);
+    const cut = text.indexOf("===");
+    const head = cut >= 0 ? text.slice(0, cut) : "";
+    const f = (k: string) => head.match(new RegExp(`^\\s*${k}:\\s*(.+)$`, "mi"))?.[1].trim() ?? "";
+    out = { description: f("DESCRIPCI[OÓ]N"), music: f("MUSICA"), musicPrompt: f("PROMPT_MUSICA"), hook: f("GANCHO"), tone: f("TONO"), seconds: Number(f("SEGUNDOS")), skill: (cut >= 0 ? text.slice(cut + 3) : text).trim() };
+  } else out = await callJson<SkillDraft>(ask, skillSchema, "high", r.ai, system);
   if (!out.skill || out.skill.length < 300) throw new AiError("bad_output", "La IA no devolvió una skill completa. Inténtalo de nuevo.");
-  return saveStyle(r.name, out.description || r.brief.slice(0, 140), out.skill.replace(/^---[\s\S]*?---\s*/, ""));
+  const body = out.skill.replace(/^---[\s\S]*?---\s*/, "");
+
+  // Miniatura: una animación corta de muestra, escrita con la propia skill
+  let preview: string | undefined;
+  try {
+    const code = await callCode(
+      `Escribe una animación de muestra de 5 segundos (D = 5) que enseñe de un vistazo cómo es este estilo: su fondo, su personaje u objeto típico, un texto corto y su manera de moverse. Sin subtítulos; puedes usar todo el lienzo. Se verá pequeña, como miniatura en una galería: pocos elementos y grandes.`,
+      `Eres un animador experto en motion graphics con canvas 2D.\n\n${CODE_CONTRACT}\n\n<skill nombre="${r.name}">\n${body}\n</skill>`,
+      r.ai,
+    );
+    preview = cleanCode(code);
+  } catch {
+    preview = undefined; // sin miniatura animada; el estilo funciona igual
+  }
+
+  return saveStyle(
+    {
+      name: r.name,
+      description: out.description || r.brief.slice(0, 140),
+      music: (MUSIC as readonly string[]).includes(out.music) ? out.music : undefined,
+      musicPrompt: out.musicPrompt || undefined,
+      hook: out.hook || undefined,
+      tone: TONE_LIST.includes(out.tone) ? out.tone : undefined,
+      seconds: [15, 30, 45, 60].includes(out.seconds) ? out.seconds : undefined,
+    },
+    body,
+    preview,
+  );
 }

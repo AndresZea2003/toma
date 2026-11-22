@@ -1,6 +1,11 @@
 ---
 name: Diagrama
 description: Explicativo en blanco sobre negro, con pictogramas de línea, personas tipo silueta y diagramas que se dibujan solos.
+music: sueño
+musicPrompt: Minimal dark ambient with soft piano notes and a slow low pulse, contemplative and intelligent, no drums, no vocals
+hook: Contraste que no cuadra. Una cifra o un hecho que contradice lo que todos esperan.
+tone: Educativo
+seconds: 30
 ---
 
 # Diagrama: explicativo monocromo

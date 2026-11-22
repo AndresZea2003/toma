@@ -41,7 +41,11 @@ export function OptionChips({ value, onChange, disabled }: { value: Options; onC
       />
       <ChipSelect label="Duración" value={value.seconds} disabled={disabled} onChange={(v) => set("seconds", v)} options={DURATIONS.map((d) => ({ value: d, label: `${d} s` }))} />
       <ChipSelect label="Tono" value={value.tone} disabled={disabled} onChange={(v) => set("tone", v)} options={TONES.map((t) => ({ value: t, label: t }))} />
-      <StyleChip value={value.styleId} onChange={(id) => set("styleId", id)} disabled={disabled} />
+      <StyleChip
+        value={value.styleId}
+        disabled={disabled}
+        onChange={(id, style) => onChange({ ...value, styleId: id, tone: style?.tone ?? value.tone, seconds: style?.seconds ?? value.seconds })}
+      />
       {!value.styleId && (
       <ChipSelect<Theme | undefined>
         label="Paleta"

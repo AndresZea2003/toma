@@ -1,6 +1,11 @@
 ---
 name: Bloques
 description: Tipografía cinética y formas planas de color: palabras enormes que empujan, giran y se apilan al ritmo de la voz.
+music: alegre
+musicPrompt: Punchy upbeat electronic pop with claps and a driving bass, energetic and confident, no vocals
+hook: Orden o promesa en dos palabras, a pantalla completa.
+tone: Vendedor
+seconds: 15
 ---
 
 # Bloques: tipografía cinética

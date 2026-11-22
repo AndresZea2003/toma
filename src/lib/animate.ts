@@ -8,6 +8,13 @@ export interface StyleInfo {
   name: string;
   description: string;
   builtin: boolean;
+  music?: string;
+  musicPrompt?: string;
+  hook?: string;
+  tone?: string;
+  seconds?: number;
+  /** Animación de muestra para la miniatura */
+  preview?: string;
 }
 
 interface AnimState {
