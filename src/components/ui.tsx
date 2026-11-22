@@ -1,6 +1,7 @@
 import { ChevronDown, Play, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ensureFonts, loadSceneMedia, renderThumb } from "../engine/render";
+import { onCodeFrame } from "../engine/sandbox";
 import { onMediaFrame } from "../lib/media";
 import { AiPicker } from "./AiPicker";
 import { PilotChip } from "./PilotChip";
@@ -195,7 +196,9 @@ export function Thumb({ project, index = 0, width = 240, className }: { project:
     let alive = true;
     const draw = () => alive && ref.current && renderThumb(ref.current, project, index);
     void Promise.all([ensureFonts(), loadSceneMedia(project)]).then(draw);
-    const off = onMediaFrame(draw);
+    const offMedia = onMediaFrame(draw);
+    const offCode = onCodeFrame(draw);
+    const off = () => (offMedia(), offCode());
     return () => {
       alive = false;
       off();

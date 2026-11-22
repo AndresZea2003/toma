@@ -8,6 +8,7 @@ import { formatTime, totalDuration } from "../lib/util";
 import { useProject, useStore } from "../store";
 import { ExportDialog } from "./ExportDialog";
 import { Player, type PlayerHandle } from "./Player";
+import { AnimProgress } from "./Styles";
 import { Thumb, TopBar, useCopy } from "./ui";
 
 export function Result({ id, fresh }: { id: string; fresh?: boolean }) {
@@ -110,6 +111,8 @@ export function Result({ id, fresh }: { id: string; fresh?: boolean }) {
               ))}
             </div>
           </div>
+
+          <AnimProgress project={project} />
 
           <section className="boost" aria-label="Mejorar con tus herramientas">
             <h3>Súbele el nivel con tus herramientas</h3>

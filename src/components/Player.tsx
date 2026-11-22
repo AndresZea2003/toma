@@ -3,6 +3,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "re
 import { sharedAudio } from "../engine/music";
 import { hasVoiceTracks, preloadProjectAudio, startMix } from "../engine/mix";
 import { ensureFonts, loadSceneMedia, renderFrame, sceneIndexAt, sceneStarts, setLivePlayback } from "../engine/render";
+import { onCodeFrame } from "../engine/sandbox";
 import { onMediaFrame } from "../lib/media";
 import { speak, stopSpeech } from "../engine/speech";
 import { FORMAT_INFO } from "../lib/presets";
@@ -105,7 +106,9 @@ export const Player = forwardRef<PlayerHandle, Props>(function Player({ project,
       }
     });
     // En pausa, redibujar cuando un clip llega al fotograma pedido
-    const off = onMediaFrame(() => !playRef.current && draw(timeRef.current));
+    const offMedia = onMediaFrame(() => !playRef.current && draw(timeRef.current));
+    const offCode = onCodeFrame(() => !playRef.current && draw(timeRef.current));
+    const off = () => (offMedia(), offCode());
     return () => {
       alive = false;
       off();

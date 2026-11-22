@@ -57,37 +57,39 @@ function extractJson(text: string): unknown {
   return JSON.parse(text.slice(a, b + 1));
 }
 
-export async function cliJson(provider: CliProvider, system: string, prompt: string, schema: Record<string, unknown>, model?: string, effort?: string): Promise<unknown> {
+/** Ejecuta la herramienta y devuelve su respuesta como texto. Con `schema`, Codex valida la forma del JSON. */
+async function cliRun(provider: CliProvider, input: string, model?: string, effort?: string, schema?: Record<string, unknown>): Promise<string> {
   const m = model && SAFE.test(model) ? model : undefined;
   const e = effort && SAFE.test(effort) ? effort : undefined;
   // Carpeta vacía: la herramienta no lee ningún proyecto ni sus instrucciones
   const dir = mkdtempSync(path.join(os.tmpdir(), "toma-ia-"));
-  const full = `${system}\n\n${prompt}\n\nResponde SOLO con un objeto JSON válido que cumpla este JSON Schema, sin explicaciones ni bloques de código:\n${JSON.stringify(schema)}`;
   try {
     if (provider === "claude-code") {
       const args = ["-p", "--output-format", "json", "--tools", '""'];
       if (m) args.push("--model", m);
       if (e) args.push("--effort", e);
-      const r = await run("claude", args, full, dir);
-      let result = r.out;
+      const r = await run("claude", args, input, dir);
       try {
         const parsed = JSON.parse(r.out);
         if (parsed.is_error) throw new Error(String(parsed.result || "Claude Code devolvió un error.").slice(0, 300));
-        result = String(parsed.result ?? "");
+        return String(parsed.result ?? "");
       } catch (err) {
         if (r.code !== 0) throw new Error((r.err || r.out || String(err)).trim().split("\n").slice(-2).join(" ").slice(0, 300) || "Claude Code falló.");
         if (err instanceof Error && !(err instanceof SyntaxError)) throw err;
+        return r.out;
       }
-      return extractJson(result);
     }
-    const schemaFile = path.join(dir, "schema.json");
-    const outFile = path.join(dir, "out.json");
-    writeFileSync(schemaFile, JSON.stringify(schema));
-    const args = ["exec", "--skip-git-repo-check", "--ephemeral", "-s", "read-only", "--output-schema", schemaFile, "-o", outFile];
+    const outFile = path.join(dir, "out.txt");
+    const args = ["exec", "--skip-git-repo-check", "--ephemeral", "-s", "read-only", "-o", outFile];
+    if (schema) {
+      const schemaFile = path.join(dir, "schema.json");
+      writeFileSync(schemaFile, JSON.stringify(schema));
+      args.push("--output-schema", schemaFile);
+    }
     if (m) args.push("-m", m);
     if (e) args.push("-c", `model_reasoning_effort=${e}`);
     args.push("-");
-    const r = await run("codex", args, full, dir);
+    const r = await run("codex", args, input, dir);
     let text = "";
     try {
       text = readFileSync(outFile, "utf8");
@@ -95,8 +97,28 @@ export async function cliJson(provider: CliProvider, system: string, prompt: str
       /* sin archivo de salida */
     }
     if (!text.trim()) throw new Error((r.err || r.out).trim().split("\n").slice(-2).join(" ").slice(0, 300) || "Codex no devolvió respuesta.");
-    return extractJson(text);
+    return text;
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+}
+
+/** Respuesta en texto libre (código, Markdown): evita los fallos de escapar código dentro de JSON */
+export function cliText(provider: CliProvider, system: string, prompt: string, model?: string, effort?: string) {
+  return cliRun(provider, `${system}\n\n${prompt}`, model, effort);
+}
+
+export async function cliJson(provider: CliProvider, system: string, prompt: string, schema: Record<string, unknown>, model?: string, effort?: string): Promise<unknown> {
+  const full = `${system}\n\n${prompt}\n\nResponde SOLO con un objeto JSON válido que cumpla este JSON Schema, sin explicaciones ni bloques de código. Dentro de los textos no uses comillas dobles: usa comillas angulares « » o simples.\n${JSON.stringify(schema)}`;
+  let lastError: unknown;
+  // El JSON escrito a mano puede llegar mal formado: un segundo intento suele bastar
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      return extractJson(await cliRun(provider, full, model, effort, schema));
+    } catch (err) {
+      lastError = err;
+      if (!(err instanceof SyntaxError)) throw err;
+    }
+  }
+  throw new Error(`la respuesta llegó mal formada dos veces (${lastError instanceof Error ? lastError.message.slice(0, 80) : "JSON inválido"}).`);
 }

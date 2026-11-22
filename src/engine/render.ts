@@ -3,6 +3,7 @@ import { loadMedia, mediaElement } from "../lib/media";
 import { THEME_DEFS, type ThemeDef } from "../lib/presets";
 import type { Actor, Project, Scene } from "../types";
 import { LIGHT_BACKGROUNDS, drawBackground, hash } from "./backgrounds";
+import { codeFrame } from "./sandbox";
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -340,6 +341,14 @@ function roundRect(ctx: Ctx, x: number, y: number, w: number, h: number, r: numb
 }
 
 function drawScene(ctx: Ctx, scene: Scene, local: number, W: number, H: number, theme: ThemeDef) {
+  // Estilos animados por IA: la escena entera es el fotograma que dibuja su código (aislado)
+  if (scene.code && !scene.media) {
+    const bmp = codeFrame(scene.id, scene.code, local, W, H, scene.duration, stillFrame || !livePlayback);
+    if (bmp) {
+      ctx.drawImage(bmp, 0, 0, W, H);
+      return;
+    }
+  }
   const seed = hash(scene.id);
   const q = easeInOutCubic(local / Math.max(scene.duration + TRANSITION_TIME, 0.1));
   let s = 1.06,

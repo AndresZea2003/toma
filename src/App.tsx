@@ -5,6 +5,7 @@ import { Home } from "./components/Home";
 import { Result } from "./components/Result";
 import { Toasts } from "./components/ui";
 import { ensureFonts } from "./engine/render";
+import { useAnim } from "./lib/animate";
 import { useStore } from "./store";
 
 export function App() {
@@ -14,6 +15,7 @@ export function App() {
 
   useEffect(() => {
     void ensureFonts();
+    void useAnim.getState().loadStyles();
   }, []);
 
   useEffect(() => {

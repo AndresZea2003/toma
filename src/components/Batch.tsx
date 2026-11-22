@@ -1,6 +1,7 @@
 import { CheckCircle2, CircleDashed, Clapperboard, Download, ExternalLink, XCircle } from "lucide-react";
 import { useRef, useState } from "react";
 import { exportVideo, pickMime, saveVideo } from "../engine/export";
+import { animateAll } from "../lib/animate";
 import { createStory } from "../lib/api";
 import { formatTime, totalDuration } from "../lib/util";
 import { useStore } from "../store";
@@ -54,6 +55,8 @@ export function Batch() {
         const res = await createStory(req);
         if (res.notice) notice = res.notice;
         const p = addFromDraft(res.draft, req, res.demo);
+        // Estilo animado: la IA empieza a animar las escenas mientras ya ves el video
+        if (p.styleId) void animateAll(p.id);
         patch(it.key, { status: "lista", projectId: p.id });
         made++;
       } catch (e) {

@@ -1,5 +1,5 @@
 // Toma como app de escritorio: una ventana con la interfaz y el servidor dentro.
-import { app, BaseWindow, dialog, Menu, shell, WebContentsView } from "electron";
+import { app, BaseWindow, dialog, Menu, session, shell, WebContentsView } from "electron";
 import { autoUpdater } from "electron-updater";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -13,6 +13,8 @@ app.setName("Toma");
 const dataDir = app.getPath("userData");
 // El perfil de Chrome del piloto y las descargas viven en los datos del usuario
 process.env.TOMA_DATA_DIR = dataDir;
+// Skills de estilo que vienen con la app
+process.env.TOMA_STYLES_DIR = path.join(__dirname, "..", "styles");
 
 /** Clave de IA y ajustes opcionales: archivo .env en la carpeta de datos de Toma */
 function loadEnv() {
@@ -50,8 +52,11 @@ function checkForUpdates() {
     Object.assign(update, { state: "error", error: "Las actualizaciones solo funcionan en la app instalada." });
     return;
   }
+  // Sin caché: si no, la app puede seguir viendo «la última versión» de hace un rato y decir «Al día»
+  autoUpdater.requestHeaders = { "Cache-Control": "no-cache" };
+  const clear = [session.defaultSession, session.fromPartition("electron-updater")].map((s) => s.clearCache().catch(() => undefined));
   // Sin conexión o sin versión publicada: el estado queda en «error» y la app sigue igual
-  autoUpdater.checkForUpdates().catch(() => undefined);
+  void Promise.all(clear).then(() => autoUpdater.checkForUpdates().catch(() => undefined));
 }
 
 // El botón «Actualizar» de la interfaz habla con esto a través del servidor local

@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { animateAll } from "../lib/animate";
 import { createStory } from "../lib/api";
 import { IDEA_SAMPLES } from "../lib/presets";
 import { useStore } from "../store";
@@ -48,6 +49,8 @@ export function Home() {
       const req = { ...opts, idea: idea.trim() };
       const res = await createStory(req);
       const p = addFromDraft(res.draft, req, res.demo);
+        // Estilo animado: la IA empieza a animar las escenas mientras ya ves el video
+        if (p.styleId) void animateAll(p.id);
       if (res.notice) toast(res.notice);
       go({ name: "result", id: p.id, fresh: true });
     } catch (e) {

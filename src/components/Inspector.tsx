@@ -7,6 +7,7 @@ import { useStore } from "../store";
 import { ACTOR_SIZES, BACKGROUNDS, CAMERAS, MOTIONS, TEXT_STYLES, TRANSITIONS, type Actor, type Background, type Project, type Scene } from "../types";
 import { VoiceOver } from "./Audio";
 import { MaterialTab } from "./Material";
+import { SceneAnimation } from "./Styles";
 import { Field, Seg } from "./ui";
 
 export type InspectorTab = "texto" | "visual" | "material";
@@ -188,6 +189,7 @@ export function Inspector({ project, scene, tab, onTab }: { project: Project; sc
 
         {tab === "visual" && (
           <>
+            <SceneAnimation project={project} scene={scene} />
             <Field label={scene.media ? "Fondo ilustrado (tienes material importado encima)" : "Fondo"}>
               <div className="bg-grid">
                 {BACKGROUNDS.map((b) => (

@@ -96,6 +96,7 @@ export const useStore = create<State>()(
             music: draft.music,
             captions: true,
             voice: false,
+            styleId: req.styleId,
             styleGuide: draft.styleGuide,
             scenes: draft.scenes.map((s) => ({ ...s, id: uid() })),
             createdAt: now,

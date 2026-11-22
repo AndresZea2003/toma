@@ -77,6 +77,8 @@ export interface Scene {
   visualPrompt: string;
   /** Material importado: reemplaza el fondo ilustrado */
   media?: MediaRef;
+  /** Animación escrita por la IA (cuerpo de función de dibujo) para estilos animados */
+  code?: string;
   /** Si hay material, ocultar los personajes emoji */
   hideActors?: boolean;
   /** Voz en off de la escena (audio importado, generado o grabado) */
@@ -98,6 +100,8 @@ export interface Project {
   voice: boolean;
   voiceName?: string;
   scenes: Scene[];
+  /** Estilo de la biblioteca: vacío = ilustrado clásico; si no, id de una skill animada por IA */
+  styleId?: string;
   /** Estilo visual y personaje recurrente, en inglés, para todos los prompts */
   styleGuide: string;
   /** Hoja de personaje/estilo importada que sirve de referencia a los prompts */
@@ -130,6 +134,8 @@ export interface StoryRequest {
   seconds: number;
   language: string;
   theme?: Theme;
+  /** Skill de estilo animado por IA (vacío = ilustrado clásico) */
+  styleId?: string;
 }
 
 /** Lo que devuelve la IA (sin ids) */

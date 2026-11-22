@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Connect, Plugin } from "vite";
-import { AiError, editScene, generateStory } from "./ai";
+import { AiError, createStyleSkill, editScene, generateSceneCode, generateStory } from "./ai";
 
 function readJson(req: IncomingMessage): Promise<any> {
   return new Promise((resolve, reject) => {
@@ -137,6 +137,27 @@ export const handler: Connect.NextHandleFunction = async (req, res, next) => {
       return send(res, 500, { error: error instanceof Error ? error.message : "No se pudo guardar" });
     }
   }
+  // Solo la propia app puede llamar a la API: ni otras webs ni el código de animación aislado
+  const origin = req.headers.origin;
+  if (req.url?.startsWith("/api/") && origin && !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+    return send(res, 403, { error: "Origen no permitido" });
+  }
+  if (req.url?.startsWith("/api/styles")) {
+    try {
+      const styles = await import("./styles");
+      const pub = (s: { id: string; name: string; description: string; builtin: boolean }) => ({ id: s.id, name: s.name, description: s.description, builtin: s.builtin });
+      if (req.method === "GET") return send(res, 200, styles.listStyles().map(pub));
+      if (req.method === "DELETE") return send(res, 200, { ok: styles.deleteStyle(decodeURIComponent(req.url.split("/")[3] ?? "")) });
+      if (req.method === "POST") {
+        const body = await readJson(req);
+        if (!body?.name?.trim() || !body?.brief?.trim()) return send(res, 400, { error: "Falta el nombre o la descripción" });
+        return send(res, 200, pub(await createStyleSkill({ name: String(body.name).slice(0, 60), brief: String(body.brief).slice(0, 4000), ai: body.ai })));
+      }
+    } catch (error) {
+      if (error instanceof AiError) return send(res, error.code === "no_key" ? 503 : 502, { error: error.message, code: error.code });
+      return send(res, 500, { error: error instanceof Error ? error.message : "Error con los estilos" });
+    }
+  }
   if (req.url?.startsWith("/api/update")) {
     const host = (globalThis as { __tomaUpdate?: { get(): unknown; check(): void; install(): void } }).__tomaUpdate;
     if (!host) return send(res, 200, { desktop: false });
@@ -155,6 +176,10 @@ export const handler: Connect.NextHandleFunction = async (req, res, next) => {
     if (req.url.startsWith("/api/story")) {
       if (!body?.idea || typeof body.idea !== "string") return send(res, 400, { error: "Falta la idea" });
       return send(res, 200, await generateStory(body));
+    }
+    if (req.url.startsWith("/api/scene-code")) {
+      if (!body?.styleId || !body?.scene) return send(res, 400, { error: "Faltan datos" });
+      return send(res, 200, await generateSceneCode(body));
     }
     if (req.url.startsWith("/api/scene")) {
       if (!body?.scene || !body?.instruction) return send(res, 400, { error: "Faltan datos" });

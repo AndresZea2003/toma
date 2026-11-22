@@ -1,5 +1,6 @@
 import { DURATIONS, FORMAT_INFO, LANGUAGES, THEME_DEFS, TONES } from "../lib/presets";
 import { FORMATS, THEMES, type Format, type StoryRequest, type Theme } from "../types";
+import { StyleChip } from "./Styles";
 import { ChipSelect } from "./ui";
 
 export type Options = Omit<StoryRequest, "idea">;
@@ -40,8 +41,10 @@ export function OptionChips({ value, onChange, disabled }: { value: Options; onC
       />
       <ChipSelect label="Duración" value={value.seconds} disabled={disabled} onChange={(v) => set("seconds", v)} options={DURATIONS.map((d) => ({ value: d, label: `${d} s` }))} />
       <ChipSelect label="Tono" value={value.tone} disabled={disabled} onChange={(v) => set("tone", v)} options={TONES.map((t) => ({ value: t, label: t }))} />
+      <StyleChip value={value.styleId} onChange={(id) => set("styleId", id)} disabled={disabled} />
+      {!value.styleId && (
       <ChipSelect<Theme | undefined>
-        label="Estilo"
+        label="Paleta"
         value={value.theme}
         disabled={disabled}
         onChange={(v) => set("theme", v)}
@@ -62,6 +65,7 @@ export function OptionChips({ value, onChange, disabled }: { value: Options; onC
           })),
         ]}
       />
+      )}
       <ChipSelect label="Idioma" value={value.language} disabled={disabled} onChange={(v) => set("language", v)} options={LANGUAGES.map((l) => ({ value: l, label: l }))} />
     </>
   );

@@ -25,6 +25,16 @@ deja `release/Toma Setup <versión>.exe`. La app guarda sus datos (perfil de Chr
 
 **Actualizaciones:** la app instalada busca una versión nueva al abrir, la descarga y la instala al cerrar. Para activarlo hay que publicar las versiones en un repositorio de GitHub: añadir `"publish": { "provider": "github", "owner": "...", "repo": "..." }` en `build` de `package.json`, subir el número de `version` y ejecutar `npx electron-builder --win --publish always` con un `GH_TOKEN`.
 
+### Biblioteca de estilos
+
+El chip **Estilo** elige cómo se ve el video:
+
+- **Ilustrado**: fondos y emojis animados de Toma (no necesita IA).
+- **Estilos animados por IA** (Diagrama, Pizarra, Bloques y los tuyos): cada estilo es una *skill* en `styles/<id>/SKILL.md` que enseña al modelo a guionizar y a animar. La IA escribe el código de animación de cada escena y Toma lo ejecuta aislado, sin acceso a red ni a tus datos.
+- **Crear estilo…**: describes el estilo y la IA escribe su skill. Las tuyas se guardan en la carpeta de datos de Toma (`styles/`), y puedes editarlas a mano.
+
+Cada animación se prueba al llegar; si falla, la IA la corrige sola. En la pestaña Visual puedes rehacerla o pedir un cambio.
+
 ### Quién escribe los guiones
 
 El chip de IA de la barra superior elige proveedor, modelo y esfuerzo:
