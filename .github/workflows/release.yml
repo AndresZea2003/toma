@@ -7,7 +7,17 @@ on:
 permissions:
   contents: write
 jobs:
+  # Se crea un único borrador antes de construir, para que Windows y Mac suban al mismo
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh release view "$TAG" --repo "$REPO" || gh release create "$TAG" --repo "$REPO" --draft --title "${TAG#v}" --notes ""
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
   build:
+    needs: release
     strategy:
       fail-fast: false
       matrix:
